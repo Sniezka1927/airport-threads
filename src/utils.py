@@ -25,6 +25,48 @@ def ensure_files_exists(filenames: List[str]):
             handle_system_error("Tworzenie", filename, e)
             raise
 
+def read_passengers(filename: str) -> List[Dict]:
+    """Bezpieczne czytanie pasażerów z pliku z lockowaniem"""
+    try:
+        with open(filename, 'r') as f:
+            # Ustawienie blokady na odczyt
+            fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+            try:
+                content = f.read()
+                if not content or content == '[]':
+                    return []
+                return json.loads(content)
+            finally:
+                # Zdjęcie blokady po zakończeniu odczytu
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+    except OSError as e:
+        handle_system_error("Odczyt", filename, e)
+        return []
+    except json.JSONDecodeError as e:
+        log(f"{timestamp()} - BŁĄD: Nieprawidłowy format JSON w pliku {filename}: {str(e)}")
+        return []
+
+
+def save_passengers(filename: str, passengers: List[Dict]):
+    """Bezpieczny zapis pasażerów do pliku z lockowaniem"""
+    try:
+        with open(filename, 'w') as f:
+            # Ustawienie blokady na zapis
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                json.dump(passengers, f, indent=2)
+            finally:
+                # Zdjęcie blokady po zakończeniu zapisu
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+    except OSError as e:
+        handle_system_error("Zapis", filename, e)
+        raise
+    except Exception as e:
+        log(f"{timestamp()} - BŁĄD: Nie udało się zapisać pasażerów do {filename}: {str(e)}")
+        raise
+
 
 def append_passenger(filename: str, passenger: dict):
     """Bezpieczne dodawanie pasażera do pliku z lockowaniem"""
