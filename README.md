@@ -62,6 +62,7 @@ Projekt implementuje minimalne prawa dostępu dla tworzonych struktur:
 ### b. Tworzenie procesów
 
 - [Tworzenie](https://github.com/Sniezka1927/airport-threads/blob/master/src/main.py#L17-L21)
+- [Kończenie](https://github.com/Sniezka1927/airport-threads/blob/master/src/main.py#L36-L69)
 
 ### c. Obsługa sygnałów
 
