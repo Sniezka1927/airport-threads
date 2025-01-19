@@ -1,8 +1,0 @@
-20:32:48 - LUGGAGE: ID=1 Sprawdzam pasażera
-20:32:48 - LUGGAGE: Pasażer ID=1 przeszedł kontrolę bagażową 
-20:32:49 - LUGGAGE: ID=2 Sprawdzam pasażera
-20:32:49 - LUGGAGE: Pasażer ID=2 przeszedł kontrolę bagażową 
-20:32:50 - LUGGAGE: ID=3 Sprawdzam pasażera
-20:32:50 - LUGGAGE: Pasażer ID=3 przeszedł kontrolę bagażową 
-20:32:51 - LUGGAGE: ID=4 Sprawdzam pasażera
-20:32:51 - LUGGAGE: Pasażer ID=4 przeszedł kontrolę bagażową 

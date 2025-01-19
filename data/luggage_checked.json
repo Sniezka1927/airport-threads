@@ -1,32 +1,7 @@
-[
-  {
-    "id": 1,
-    "gender": "M",
-    "luggageWeight": 1.35,
-    "hasDangerousItems": false,
-    "isVIP": false,
-    "controlPassed": 0
-  },
-  {
-    "id": 2,
-    "gender": "M",
-    "luggageWeight": 6.31,
-    "hasDangerousItems": false,
-    "isVIP": false,
-    "controlPassed": 0
-  },
-  {
-    "id": 3,
-    "gender": "M",
-    "luggageWeight": 10.04,
-    "hasDangerousItems": false,
-    "isVIP": true,
-    "controlPassed": 0
-  },
-  {
-    "id": 4,
+[]  {
+    "id": 21679,
     "gender": "F",
-    "luggageWeight": 9.38,
+    "luggageWeight": 12.14,
     "hasDangerousItems": false,
     "isVIP": false,
     "controlPassed": 0
