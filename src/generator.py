@@ -2,6 +2,7 @@ import random
 import time
 from dataclasses import dataclass, asdict
 from multiprocessing import Process
+
 from utils import ensure_files_exists
 from utils import timestamp, append_passenger, log
 from consts import (

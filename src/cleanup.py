@@ -4,6 +4,9 @@ from consts import (
     ENTRANCE_FILE,
     LUGGAGE_CHECKED_FILE,
     LUGGAGE_REJECTED_FILE,
+    SECURITY_CHECKED_FILE,
+    SECURITY_REJECTED_FILE,
+    STAIRS_FILE
 )
 
 
@@ -19,6 +22,9 @@ def clear_files(logs: bool = True):
         ENTRANCE_FILE,
         LUGGAGE_CHECKED_FILE,
         LUGGAGE_REJECTED_FILE,
+        SECURITY_CHECKED_FILE,
+        SECURITY_REJECTED_FILE,
+        STAIRS_FILE
     ]
 
     # Upewnij się, że katalog istnieje
