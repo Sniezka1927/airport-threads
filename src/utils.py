@@ -1,12 +1,40 @@
 import os
 import fcntl
 import errno
+from json import JSONDecodeError
 from typing import List, Dict
 import json
 import sys
 from datetime import datetime
 from consts import LOGS_FILE, LOGS_DIRECTORY
 from pathlib import Path
+from consts import AIRPORT_AIRPLANES_COUNT, VIP_PROBABILITY, DANGEROUS_ITEMS_PROBABILITY, STAIRS_CAPACITY, \
+    AIRPLANE_CAPACITY, MIN_AIRPLANE_LUGGAGE_CAPACITY, AIRPORT_LUGGAGE_LIMIT, MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT, MAX_AIRPLANE_LUGGAGE_CAPACITY
+
+
+def handle_system_error(operation: str, filename: str, error: OSError):
+    """
+    Obsługa błędów systemowych z wykorzystaniem errno
+    """
+    error_code = error.errno
+    error_message = os.strerror(error_code)  # odpowiednik perror w Pythonie
+    error_details = f"{operation} na pliku {filename} nie powiodła się: {error_message} (errno: {error_code})"
+
+    # Logowanie błędu
+    with open(LOGS_FILE, 'a', encoding='utf-8') as log_file:
+        log_file.write(f"{timestamp()} - BŁĄD: {error_details}\n")
+
+    # Wyświetlenie błędu na stderr
+    sys.stderr.write(f"{error_details}\n")
+
+    # Obsługa specyficznych błędów
+    if error_code == errno.EACCES:
+        sys.stderr.write("Brak wymaganych uprawnień do pliku\n")
+    elif error_code == errno.ENOENT:
+        sys.stderr.write("Plik nie istnieje\n")
+    elif error_code == errno.ENOSPC:
+        sys.stderr.write("Brak miejsca na dysku\n")
+
 
 def ensure_files_exists(filenames: List[str]):
     """Upewnij się, że wszystkie potrzebne pliki istnieją z odpowiednimi prawami"""
@@ -24,6 +52,7 @@ def ensure_files_exists(filenames: List[str]):
         except OSError as e:
             handle_system_error("Tworzenie", filename, e)
             raise
+
 
 def read_passengers(filename: str) -> List[Dict]:
     """Bezpieczne czytanie pasażerów z pliku z lockowaniem"""
@@ -83,10 +112,14 @@ def append_passenger(filename: str, passenger: dict):
                 f.seek(0)
                 json.dump(data, f, indent=2)
                 f.truncate()
+            except JSONDecodeError as e:
+                data = [passenger]
+                f.seek(0)
+                json.dump(data, f, indent=2)
+                f.truncate()
             finally:
                 # Zdjęcie blokady
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
     except OSError as e:
         handle_system_error("Dodawanie pasażera", filename, e)
         raise
@@ -106,3 +139,49 @@ def log(message: str, output_file: str = LOGS_FILE, to_console: bool = True):
     if to_console:
         print(message)
 
+def read_log_to_list(file_content):
+    """Funckja pomocnicza do odczytu pliku logów do listy linii"""
+    return [line.strip() for line in file_content.split('\n') if line.strip()]
+
+
+def get_latest_log_entries():
+    """Odczytaj logów z najnowszej symulacji"""
+    try:
+        log_path = Path(LOGS_DIRECTORY)
+        log_files = list(log_path.glob('logs_*.txt'))
+
+        if not log_files:
+            return None, None
+
+        # Wyciągnij timestamp z nazwy pliku
+        log_timestamps = [(int(f.stem.split('_')[1]), f) for f in log_files]
+
+        # Znajdź najnowszy plik
+        latest_timestamp, latest_file = max(log_timestamps, key=lambda x: x[0])
+
+        # Odczytaj zawartość pliku i ją zwróć
+        content = latest_file.read_text(encoding='utf-8')
+        return read_log_to_list(content), latest_timestamp
+
+    except Exception as e:
+        print(f"Error reading log file: {e}")
+        return None
+
+def validate_config():
+    """"Sprawdza poprawność konfiguracji"""
+    if not (AIRPORT_AIRPLANES_COUNT > 0):
+        raise ValueError("AIRPORT_AIRPLANES_COUNT musi być większe od 0")
+    if not (VIP_PROBABILITY >= 0 and VIP_PROBABILITY <= 1):
+        raise ValueError("VIP_PROBABILITY musi być między 0 a 1")
+    if not (DANGEROUS_ITEMS_PROBABILITY >= 0 and DANGEROUS_ITEMS_PROBABILITY <= 1):
+        raise ValueError("DANGEROUS_ITEMS_PROBABILITY musi być między 0 a 1")
+    if not (STAIRS_CAPACITY > 0 and STAIRS_CAPACITY <= AIRPLANE_CAPACITY):
+        raise ValueError(f"STAIRS_CAPACITY musi być między 0 a {AIRPLANE_CAPACITY}")
+    if not (AIRPLANE_CAPACITY > 0):
+        raise ValueError("AIRPLANE_CAPACITY musi być większe od 0")
+    if not (MIN_AIRPLANE_LUGGAGE_CAPACITY >= AIRPLANE_CAPACITY * AIRPORT_LUGGAGE_LIMIT):
+        raise ValueError(f"MIN_AIRPLANE_LUGGAGE_CAPACITY musi być większe bądź równe {AIRPLANE_CAPACITY * AIRPORT_LUGGAGE_LIMIT}")
+    if not (MIN_LUGGAGE_WEIGHT >= 0 and MIN_LUGGAGE_WEIGHT <= MAX_LUGGAGE_WEIGHT):
+        raise ValueError("MIN_LUGGAGE_CAPACITY musi być większe bądź równa 0 i mniejsze bądź równe MAX_LUGGAGE_WEIGHT")
+    if not (MAX_AIRPLANE_LUGGAGE_CAPACITY >= MIN_AIRPLANE_LUGGAGE_CAPACITY):
+        raise ValueError("MAX_AIRPLANE_LUGGAGE_CAPACITY musi bć większe bądź róœne MIN_AIRPLANE_LUGGAGE_CAPACITY")

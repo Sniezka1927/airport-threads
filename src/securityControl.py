@@ -25,7 +25,7 @@ class CheckpointStation:
 
     def is_full(self) -> bool:
         """Sprawdza czy stacja jest pełna"""
-        return len(self.passengers) >= MAX_PASSENGERS_PER_CHECKPOINT
+        return len(self.passengers) >= 2
 
     def is_empty(self) -> bool:
         """Sprawdza czy stacja jest pusta"""
