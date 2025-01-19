@@ -73,7 +73,6 @@ def read_passengers(filename: str) -> List[Dict]:
         handle_system_error("Odczyt", filename, e)
         return []
     except json.JSONDecodeError as e:
-        log(f"{timestamp()} - BŁĄD: Nieprawidłowy format JSON w pliku {filename}: {str(e)}")
         return []
 
 
