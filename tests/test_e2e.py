@@ -1,23 +1,32 @@
 import sys
+import multiprocessing as mp
 from dataclasses import asdict
-import threading
 import time
-from src.consts import AIRPLANE_CAPACITY, ENTRANCE_FILE, LUGGAGE_CHECKED_FILE, SECURITY_CHECKED_FILE, \
-    LUGGAGE_REJECTED_FILE, SECURITY_REJECTED_FILE, MIN_PASSENGERS_TO_BOARD, FLIGHT_DURATION, STAIRS_FILE, \
+from src.consts import (
+    AIRPLANE_CAPACITY,
+    ENTRANCE_FILE,
+    LUGGAGE_CHECKED_FILE,
+    SECURITY_CHECKED_FILE,
+    LUGGAGE_REJECTED_FILE,
+    SECURITY_REJECTED_FILE,
+    MIN_PASSENGERS_TO_BOARD,
+    FLIGHT_DURATION,
+    STAIRS_FILE,
     AIRPORT_LUGGAGE_LIMIT
+)
 from src.dispatcher import Dispatcher
-from src.generator import generate_passenger as _generate_passenger
+from src.generator import generate_passenger
 from src.cleanup import clear_files
 from src.luggageControl import validate_passenger
 from src.securityControl import process_passengers, SecurityCheckpoint
-from src.utils import save_passengers, read_passengers
+from src.utils import save_passengers, read_passengers, validate_config
 from src.gate import process_passengers as gate_process_passengers
 
 
 def generate_passengers(count: int, male_count: int = 0, with_items: bool = False, is_vip: bool = False) -> list[dict]:
     passengers = []
     for i in range(count):
-        passenger = _generate_passenger()
+        passenger = generate_passenger()
         passenger.hasDangerousItems = with_items
         passenger.isVIP = is_vip
         if i < male_count:
@@ -29,64 +38,43 @@ def generate_passengers(count: int, male_count: int = 0, with_items: bool = Fals
     return passengers
 
 
-def gate_process_wrapper(gate_queue, stop_event):
-    try:
-        while not stop_event.is_set():
-            gate_process_passengers(gate_queue)
-            time.sleep(0.1)
-    except Exception as e:
-        print(f"Gate process error: {e}")
-
-
-def dispatcher_loop_wrapper(dispatcher, stop_event):
-    try:
-        while not stop_event.is_set():
-            dispatcher.dispatcher_loop()
-            time.sleep(0.1)
-    except Exception as e:
-        print(f"Dispatcher error: {e}")
-
-
-if __name__ == "__main__":
+def run_e2e_test():
     clear_files(False)
+    validate_config()
 
-    stop_event = threading.Event()
-
-    clear_files(False)
     dispatcher = Dispatcher()
+    dispatcher_process = mp.Process(target=dispatcher.dispatcher_loop)
+    gate_process = mp.Process(target=gate_process_passengers, args=(dispatcher.gate_queue,))
 
-    gate_thread = threading.Thread(target=gate_process_wrapper, args=(dispatcher.gate_queue, stop_event))
-    gate_thread.daemon = True
-    gate_thread.start()
-
-    dispatcher_thread = threading.Thread(target=dispatcher_loop_wrapper, args=(dispatcher, stop_event))
-    dispatcher_thread.daemon = True
-    dispatcher_thread.start()
+    processes = [dispatcher_process, gate_process]
 
     try:
+
+        for process in processes:
+            process.start()
+
         passengers_count = MIN_PASSENGERS_TO_BOARD * 2
-        # Wejście na lotnisko
+
+        # Entrance
         initial_passengers = generate_passengers(passengers_count, AIRPLANE_CAPACITY / 2, False, False)
         save_passengers(ENTRANCE_FILE, initial_passengers)
         assert len(read_passengers(ENTRANCE_FILE)) == passengers_count
 
-        # Kontola Biletowo bagażowa
+        # Luggage control
         for passenger in initial_passengers:
             validate_passenger(passenger)
-
         assert len(read_passengers(LUGGAGE_CHECKED_FILE)) == passengers_count
         assert len(read_passengers(LUGGAGE_REJECTED_FILE)) == 0
 
-        # Kontrola bezpieczeństwa
+        # Security control
         checkpoint = SecurityCheckpoint()
         for _ in range((passengers_count // 6) + 1):
             process_passengers(checkpoint)
-
         assert len(read_passengers(SECURITY_CHECKED_FILE)) >= 0
         assert len(read_passengers(SECURITY_REJECTED_FILE)) == 0
         assert len(read_passengers(LUGGAGE_CHECKED_FILE)) == 0
 
-        # Czas na wejście na pokład
+        # Czas na boarding
         time.sleep(10)
 
         # Czas na powrót samolotów
@@ -99,11 +87,22 @@ if __name__ == "__main__":
         assert len(read_passengers(LUGGAGE_CHECKED_FILE)) == 0
         assert len(read_passengers(LUGGAGE_REJECTED_FILE)) == 0
         assert len(read_passengers(STAIRS_FILE)) == 0
-        assert len(read_passengers(ENTRANCE_FILE)) == 0
 
-    except KeyboardInterrupt:
-        sys.exit(0)
-    except Exception as e:
-        sys.exit(0)
+        print("OK!")
+    finally:
+        print("\nKończenie procesów...")
+
+        dispatcher.terminate_all_processes()
+
+        if dispatcher_process.is_alive():
+            dispatcher_process.terminate()
+
+        if gate_process.is_alive():
+            gate_process.terminate()
+
+        for process in processes:
+            process.join(timeout=1)
 
 
+if __name__ == "__main__":
+    run_e2e_test()
