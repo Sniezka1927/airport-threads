@@ -174,3 +174,24 @@ Podczas implementacji szczególnie wymagające okazały się:
 - Koordynacja wielu procesów
 - Zapewnienie spójności danych przy równoległym dostępie
 - Implementacja systemu priorytetów dla pasażerów (limitu przepuszczeń)
+
+## 8. Włączenie symulacji
+
+### 8.1 Wymagania
+
+- Python 3.x
+
+### 8.2 Uruchomienie
+
+```bash
+cd src && python3 main.py
+```
+
+### 8.3 Zebranie statystyk
+
+Pliki ze statystykami zostaną zapisane w katalogu `./src/stats/stats_{SIMULATE_START_TIMESTAMP}.json`
+
+```bash
+# Z katalogu src
+python3 stats.py
+```
