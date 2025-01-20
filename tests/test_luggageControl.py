@@ -1,20 +1,23 @@
 from dataclasses import asdict
-from src.consts import MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT, AIRPORT_LUGGAGE_LIMIT
-from src.generator import generate_passenger
-from src.luggageControl import validate_passenger
-from src.cleanup import clear_files
-from src.utils import save_passengers, read_passengers
-from src.consts import ENTRANCE_FILE, LUGGAGE_CHECKED_FILE, LUGGAGE_REJECTED_FILE
+from consts import MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT, AIRPORT_LUGGAGE_LIMIT
+from generator import generate_passenger
+from luggageControl import validate_passenger
+from cleanup import clear_files
+from utils import save_passengers, read_passengers
+from consts import ENTRANCE_FILE, LUGGAGE_CHECKED_FILE, LUGGAGE_REJECTED_FILE
 
 
 def test_check_passenger_with_correct_luggage_weight():
+    clear_files(False)
     passenger = generate_passenger()
     assert passenger.isVIP in [True, False]
     assert passenger.hasDangerousItems in [True, False]
-    assert passenger.luggageWeight>= MIN_LUGGAGE_WEIGHT
+    assert passenger.luggageWeight >= MIN_LUGGAGE_WEIGHT
     assert passenger.luggageWeight <= MAX_LUGGAGE_WEIGHT
     assert passenger.gender in ['M', 'F']
     assert passenger.id == 1
+
+    passenger.luggageWeight = AIRPORT_LUGGAGE_LIMIT - 1
 
     save_passengers(ENTRANCE_FILE, [asdict(passenger)])
     validate_passenger(asdict(passenger))
@@ -52,7 +55,6 @@ def test_check_passenger_with_incorrect_luggage_weight():
 
 
 if __name__ == "__main__":
-    clear_files(False)
     test_check_passenger_with_correct_luggage_weight()
     test_check_passenger_with_incorrect_luggage_weight()
     print("OK")

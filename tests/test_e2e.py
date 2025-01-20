@@ -2,7 +2,7 @@ import sys
 import multiprocessing as mp
 from dataclasses import asdict
 import time
-from src.consts import (
+from consts import (
     AIRPLANE_CAPACITY,
     ENTRANCE_FILE,
     LUGGAGE_CHECKED_FILE,
@@ -14,13 +14,13 @@ from src.consts import (
     STAIRS_FILE,
     AIRPORT_LUGGAGE_LIMIT
 )
-from src.dispatcher import Dispatcher
-from src.generator import generate_passenger
-from src.cleanup import clear_files
-from src.luggageControl import validate_passenger
-from src.securityControl import process_passengers, SecurityCheckpoint
-from src.utils import save_passengers, read_passengers, validate_config
-from src.gate import process_passengers as gate_process_passengers
+from dispatcher import Dispatcher
+from generator import generate_passenger
+from cleanup import clear_files
+from luggageControl import validate_passenger
+from securityControl import process_passengers, SecurityCheckpoint
+from utils import save_passengers, read_passengers, validate_config
+from gate import process_passengers as gate_process_passengers
 
 
 def generate_passengers(count: int, male_count: int = 0, with_items: bool = False, is_vip: bool = False) -> list[dict]:

@@ -1,9 +1,9 @@
 from dataclasses import asdict
-from src.generator import generate_passenger as _generate_passenger
-from src.cleanup import clear_files
-from src.securityControl import SecurityCheckpoint, process_passengers
-from src.utils import save_passengers, read_passengers
-from src.consts import  LUGGAGE_CHECKED_FILE, SECURITY_CHECKED_FILE, SECURITY_REJECTED_FILE
+from generator import generate_passenger as _generate_passenger
+from cleanup import clear_files
+from securityControl import SecurityCheckpoint, process_passengers
+from utils import save_passengers, read_passengers
+from consts import  LUGGAGE_CHECKED_FILE, SECURITY_CHECKED_FILE, SECURITY_REJECTED_FILE
 
 
 def generate_passengers(count: int, male_count: int = 0, with_items: bool = False, is_vip: bool = False) -> list[dict]:
