@@ -1,10 +1,10 @@
 from dataclasses import asdict
 from multiprocessing import Queue
-from src.gate import handle_passengers
-from src.generator import generate_passenger as _generate_passenger
-from src.cleanup import clear_files
-from src.utils import save_passengers, read_passengers
-from src.consts import  SECURITY_CHECKED_FILE, AIRPLANE_CAPACITY, STAIRS_FILE
+from gate import handle_passengers
+from generator import generate_passenger as _generate_passenger
+from cleanup import clear_files
+from utils import save_passengers, read_passengers
+from consts import  SECURITY_CHECKED_FILE, AIRPLANE_CAPACITY, STAIRS_FILE
 import threading
 import time
 

@@ -1,6 +1,6 @@
-from src.consts import MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT
-from src.generator import generate_passenger
-from src.cleanup import clear_files
+from consts import MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT
+from generator import generate_passenger
+from cleanup import clear_files
 
 def test_generate_multiple_passengers():
     passenger = generate_passenger()

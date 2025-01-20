@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": 2,
+    "gender": "M",
+    "luggageWeight": 12.501,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  }
+]
