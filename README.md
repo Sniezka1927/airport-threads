@@ -88,7 +88,7 @@ Projekt implementuje minimalne prawa dostępu dla tworzonych struktur:
 ### 4.1 Synchronizacja dostępu do plików
 
 Problem: Równoległy dostęp do plików przez różne procesy.
-Rozwiązanie: Wykorzystanie mechanizmu `fcntl` do [blokowania](https://github.com/Sniezka1927/airport-threads/blob/master/src/utils.py#L62) i [odblokowywania](https://github.com/Sniezka1927/airport-threads/blob/master/src/utils.py#L70) plików:
+Rozwiązanie: Wykorzystanie mechanizmu `fcntl` do [blokowania](https://github.com/Sniezka1927/airport-threads/blob/master/src/utils.py#L62) i [odblokowywania](https://github.com/Sniezka1927/airport-threads/blob/master/src/utils.py#L70) plików
 
 ### 4.2 Koordynacja procesów
 
@@ -189,7 +189,7 @@ cd src && python3 main.py
 
 ### 8.3 Zebranie statystyk
 
-Pliki ze statystykami zostaną zapisane w katalogu `./src/stats/stats_{SIMULATE_START_TIMESTAMP}.json`
+Pliki ze statystykami zostaną zapisane w katalogu `./stats/stats_{SIMULATE_START_TIMESTAMP}.json`
 
 ```bash
 # Z katalogu src
