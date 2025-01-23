@@ -133,6 +133,8 @@ class Statistics:
             }
         }
 
+        print("Stats:", stats_dict)
+
         savepath = f"{STATS_DIRECTORY}/statistics_{self.timestamp}.json"
 
 
