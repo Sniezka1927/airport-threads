@@ -1,8 +1,8 @@
 [
   {
-    "id": 2,
-    "gender": "M",
-    "luggageWeight": 12.501,
+    "id": 7,
+    "gender": "F",
+    "luggageWeight": 12.84,
     "hasDangerousItems": false,
     "isVIP": false,
     "controlPassed": 0

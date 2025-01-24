@@ -148,17 +148,11 @@ Test `./tests/test_e2e.py` weryfikuje:
 
 ## 6. Elementy wyróżniające projekt
 
-### 1. Zaawansowany system logowania i [statystyk](https://github.com/Sniezka1927/airport-threads/blob/master/src/stats.py):
-
+- Zaawansowany system logowania i [statystyk](https://github.com/Sniezka1927/airport-threads/blob/master/src/stats.py):
 - Moduł `stats.py` zbierający kompleksowe statystyki
 - System logowania z timestampami
 - Testy end-to-end
-
-### 2. Wielopoziomowa walidacja:
-
-- Walidacja konfiguracji
-- Sprawdzanie limitów
-- Obsługa błędów systemowych
+- Wielopoziomowa walidacja:
 
 ## 7. Wnioski
 
