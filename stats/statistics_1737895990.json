@@ -1,0 +1,31 @@
+{
+    "duration": 1102.0,
+    "passengers": {
+        "entered": 1457,
+        "boarded": 860
+    },
+    "luggage_control": {
+        "total_controls": 1097,
+        "checked": 876,
+        "rejected": 221
+    },
+    "security_control": {
+        "total_controls": 876,
+        "checked": 866,
+        "rejected": 8
+    },
+    "stairs": {
+        "times_used": 86
+    },
+    "airplanes": {
+        "ready": 43,
+        "started": 43,
+        "completed": 42
+    },
+    "airport": {
+        "was_shutdown": false,
+        "stairs_capacity": 10,
+        "luggage_limit": 12.5,
+        "airplane_capacity": 20
+    }
+}

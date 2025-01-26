@@ -98,7 +98,7 @@ class Statistics:
             elif location == LOCATIONS.AIRPLANE:
                 self.process_airplane_logs(log)
             else:
-                print(location)
+                continue
 
     def save(self):
         stats_dict = {
@@ -133,7 +133,7 @@ class Statistics:
             }
         }
 
-        print("Stats:", stats_dict)
+        print("Stats:", json.dumps(stats_dict, indent=4))
 
         savepath = f"{STATS_DIRECTORY}/statistics_{self.timestamp}.json"
 

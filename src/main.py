@@ -7,6 +7,7 @@ from luggageControl import check_luggage_continuously
 from securityControl import check_security_continuously
 from cleanup import clear_files
 from utils import validate_config
+from stats import Statistics
 
 
 def main():
@@ -67,6 +68,9 @@ def main():
         gate_process.join()
 
         print("Wszystkie procesy zostały zakończone.")
+        stats = Statistics()
+        stats.collect()
+        stats.save()
 
 
 if __name__ == "__main__":
