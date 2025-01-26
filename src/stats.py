@@ -98,7 +98,7 @@ class Statistics:
             elif location == LOCATIONS.AIRPLANE:
                 self.process_airplane_logs(log)
             else:
-                print(location)
+                continue
 
     def save(self):
         stats_dict = {
