@@ -1,1 +1,66 @@
-[]
+[
+  {
+    "id": 75,
+    "gender": "F",
+    "luggageWeight": 2.74,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 97,
+    "gender": "F",
+    "luggageWeight": 3.74,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 201,
+    "gender": "M",
+    "luggageWeight": 9.81,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 259,
+    "gender": "F",
+    "luggageWeight": 10.63,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 291,
+    "gender": "F",
+    "luggageWeight": 12.26,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 525,
+    "gender": "F",
+    "luggageWeight": 9.62,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 590,
+    "gender": "M",
+    "luggageWeight": 7.55,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 637,
+    "gender": "F",
+    "luggageWeight": 3.27,
+    "hasDangerousItems": true,
+    "isVIP": false,
+    "controlPassed": 0
+  }
+]
