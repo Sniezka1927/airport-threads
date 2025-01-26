@@ -1,0 +1,51 @@
+13:52:32 - GATE: Oczekiwanie na sygnał od dyspozytora
+13:52:32 - ENTRANCE: Wygenerowano pasażera: ID=1, Płeć=F, Bagaż=8.62kg, VIP=Nie
+13:52:32 - LUGGAGE: ID=1 Sprawdzam pasażera
+13:52:32 - LUGGAGE: Pasażer ID=1 przeszedł kontrolę bagażową 
+13:52:32 - ENTRANCE: Wygenerowano pasażera: ID=2, Płeć=F, Bagaż=7.13kg, VIP=Nie
+13:52:33 - SECURITY: Pasażer ID=1 płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:33 - LUGGAGE: ID=2 Sprawdzam pasażera
+13:52:33 - LUGGAGE: Pasażer ID=2 przeszedł kontrolę bagażową 
+13:52:33 - ENTRANCE: Wygenerowano pasażera: ID=3, Płeć=F, Bagaż=5.3kg, VIP=Tak
+13:52:34 - LUGGAGE: ID=3 Sprawdzam pasażera
+13:52:34 - LUGGAGE: Pasażer ID=3 przeszedł kontrolę bagażową 
+13:52:34 - ENTRANCE: Wygenerowano pasażera: ID=4, Płeć=F, Bagaż=2.96kg, VIP=Nie
+13:52:35 - SECURITY: Stanowisko 0: Pasażer ID=1 (przepuścił: 0 osób) przeszedł kontrolę bezpieczeństwa
+13:52:35 - LUGGAGE: ID=4 Sprawdzam pasażera
+13:52:35 - LUGGAGE: Pasażer ID=4 przeszedł kontrolę bagażową 
+13:52:35 - ENTRANCE: Wygenerowano pasażera: ID=5, Płeć=M, Bagaż=12.69kg, VIP=Nie
+13:52:36 - ENTRANCE: Wygenerowano pasażera: ID=6, Płeć=F, Bagaż=14.75kg, VIP=Nie
+13:52:36 - SECURITY: Pasażer ID=3 (VIP) płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:36 - SECURITY: Pasażer ID=2 płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:36 - SECURITY: Pasażer ID=4 płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:36 - LUGGAGE: ID=5 Sprawdzam pasażera
+13:52:36 - LUGGAGE: Pasażer ID=5 odrzucony - za ciężki bagaż
+13:52:37 - ENTRANCE: Wygenerowano pasażera: ID=7, Płeć=M, Bagaż=2.81kg, VIP=Nie
+13:52:37 - LUGGAGE: ID=6 Sprawdzam pasażera
+13:52:37 - LUGGAGE: Pasażer ID=6 odrzucony - za ciężki bagaż
+13:52:37 - ENTRANCE: Wygenerowano pasażera: ID=8, Płeć=F, Bagaż=5.88kg, VIP=Nie
+13:52:38 - SECURITY: Stanowisko 0: Pasażer ID=3 (przepuścił: 0 osób) przeszedł kontrolę bezpieczeństwa
+13:52:38 - SECURITY: Stanowisko 0: Pasażer ID=2 (przepuścił: 0 osób) przeszedł kontrolę bezpieczeństwa
+13:52:38 - SECURITY: Stanowisko 1: Pasażer ID=4 (przepuścił: 0 osób) przeszedł kontrolę bezpieczeństwa
+13:52:38 - LUGGAGE: ID=7 Sprawdzam pasażera
+13:52:38 - LUGGAGE: Pasażer ID=7 przeszedł kontrolę bagażową 
+13:52:38 - ENTRANCE: Wygenerowano pasażera: ID=9, Płeć=F, Bagaż=6.26kg, VIP=Nie
+13:52:39 - ENTRANCE: Wygenerowano pasażera: ID=10, Płeć=M, Bagaż=5.55kg, VIP=Nie
+13:52:39 - SECURITY: Pasażer ID=7 płeć=M rozpoczyna kontrolę bezpieczeństwa
+13:52:39 - LUGGAGE: ID=8 Sprawdzam pasażera
+13:52:39 - LUGGAGE: Pasażer ID=8 przeszedł kontrolę bagażową 
+13:52:39 - ENTRANCE: Wygenerowano pasażera: ID=11, Płeć=F, Bagaż=13.49kg, VIP=Nie
+13:52:40 - LUGGAGE: ID=9 Sprawdzam pasażera
+13:52:40 - LUGGAGE: Pasażer ID=9 przeszedł kontrolę bagażową 
+13:52:40 - ENTRANCE: Wygenerowano pasażera: ID=12, Płeć=M, Bagaż=11.56kg, VIP=Nie
+13:52:41 - SECURITY: Stanowisko 0: Pasażer ID=7 (przepuścił: 0 osób) przeszedł kontrolę bezpieczeństwa
+13:52:41 - LUGGAGE: ID=10 Sprawdzam pasażera
+13:52:41 - LUGGAGE: Pasażer ID=10 przeszedł kontrolę bagażową 
+13:52:41 - ENTRANCE: Wygenerowano pasażera: ID=13, Płeć=F, Bagaż=11.5kg, VIP=Nie
+13:52:42 - ENTRANCE: Wygenerowano pasażera: ID=14, Płeć=F, Bagaż=1.38kg, VIP=Nie
+13:52:42 - SECURITY: Pasażer ID=8 płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:42 - SECURITY: Pasażer ID=9 płeć=F rozpoczyna kontrolę bezpieczeństwa
+13:52:42 - SECURITY: Pasażer ID=10 płeć=M rozpoczyna kontrolę bezpieczeństwa
+13:52:42 - LUGGAGE: ID=11 Sprawdzam pasażera
+13:52:42 - LUGGAGE: Pasażer ID=11 odrzucony - za ciężki bagaż
+13:52:43 - ENTRANCE: Wygenerowano pasażera: ID=15, Płeć=M, Bagaż=7.76kg, VIP=Nie

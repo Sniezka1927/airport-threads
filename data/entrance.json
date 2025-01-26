@@ -1,24 +1,32 @@
 [
   {
-    "id": 16,
+    "id": 12,
     "gender": "M",
-    "luggageWeight": 5.31,
+    "luggageWeight": 11.56,
     "hasDangerousItems": false,
     "isVIP": false,
     "controlPassed": 0
   },
   {
-    "id": 17,
+    "id": 13,
     "gender": "F",
-    "luggageWeight": 3.6,
+    "luggageWeight": 11.5,
     "hasDangerousItems": false,
     "isVIP": false,
     "controlPassed": 0
   },
   {
-    "id": 18,
+    "id": 14,
+    "gender": "F",
+    "luggageWeight": 1.38,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 15,
     "gender": "M",
-    "luggageWeight": 2.57,
+    "luggageWeight": 7.76,
     "hasDangerousItems": false,
     "isVIP": false,
     "controlPassed": 0
