@@ -189,3 +189,16 @@ Pliki ze statystykami zostaną zapisane w katalogu `./stats/stats_{SIMULATE_STAR
 # Z katalogu src
 python3 stats.py
 ```
+
+### 8.4 Testowanie aplikacjii
+
+Przed każdym uruchomieniem każdego testu należy się upewnić, że wszystkie pliki w `./data/*.json` nie zawierają informacji o pasażerach.
+
+```bash
+# Z katalogu tests
+pytest test_generator.py -s
+pytest test_luggageControl.py -s
+pytest test_securityControl.py -s
+pytest test_gate.py -s
+pytest test_e2e.py -s
+```

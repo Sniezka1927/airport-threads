@@ -38,7 +38,7 @@ def generate_passengers(count: int, male_count: int = 0, with_items: bool = Fals
     return passengers
 
 
-def run_e2e_test():
+def test_e2e():
     clear_files(False)
     validate_config()
 
@@ -105,4 +105,5 @@ def run_e2e_test():
 
 
 if __name__ == "__main__":
-    run_e2e_test()
+    test_e2e()
+    clear_files(False)

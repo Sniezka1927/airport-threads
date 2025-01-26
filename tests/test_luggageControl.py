@@ -58,3 +58,4 @@ if __name__ == "__main__":
     test_check_passenger_with_correct_luggage_weight()
     test_check_passenger_with_incorrect_luggage_weight()
     print("OK")
+    clear_files(False)

@@ -22,6 +22,7 @@ def generate_passengers(count: int, male_count: int = 0, with_items: bool = Fals
 
 
 def test_single_passenger():
+    clear_files(False)
     passengers = generate_passengers(1, 0,False)
     checkpoint = SecurityCheckpoint()
     save_passengers(LUGGAGE_CHECKED_FILE, passengers)
@@ -118,3 +119,4 @@ if __name__ == "__main__":
     test_passing_passengers()
     test_vip_pass()
     print("OK")
+    clear_files(False)

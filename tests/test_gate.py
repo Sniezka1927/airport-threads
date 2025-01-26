@@ -83,3 +83,4 @@ if __name__ == "__main__":
     test_not_enough_passengers()
     test_too_much_passengers()
     print("OK")
+    clear_files(False)
