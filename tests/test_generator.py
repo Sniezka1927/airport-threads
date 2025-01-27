@@ -23,3 +23,4 @@ if __name__ == "__main__":
     clear_files(False)
     test_generate_multiple_passengers()
     print("OK")
+    clear_files(False)
