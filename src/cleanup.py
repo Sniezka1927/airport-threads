@@ -50,7 +50,7 @@ def clear_files(logs: bool = True):
         try:
             # Stwórz lub wyczyść plik
             with open(file_path, "w") as f:
-                f.write("[]")
+                f.write("")
             if logs:
                 print(f"Wyczyszczono plik: {file_path}")
         except Exception as e:

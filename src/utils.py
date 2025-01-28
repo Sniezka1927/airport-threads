@@ -65,47 +65,69 @@ def ensure_files_exists(filenames: List[str]):
             fd = os.open(filename, flags, mode)
             with os.fdopen(fd, "w") as f:
                 if os.path.getsize(filename) == 0:
-                    f.write("[]")
+                    f.write("")
 
         except OSError as e:
             handle_system_error("Tworzenie", filename, e)
             raise
 
 
-def read_passengers(filename: str) -> List[Dict]:
+def serialize_passenger(passenger) -> str:
+    return f"{passenger['id']};{passenger['gender']};{passenger['luggageWeight']};{passenger['hasDangerousItems']};{passenger['isVIP']};{passenger['controlPassed']}"
+
+
+def str_to_bool(string: str) -> bool:
+    return string.lower() == "true"
+
+
+def deserialize_passenger(line: str):
+    data = line.strip().split(";")
+    passenger = {
+        "id": int(data[0]),
+        "gender": data[1],
+        "luggageWeight": float(data[2]),
+        "hasDangerousItems": str_to_bool(data[3]),
+        "isVIP": str_to_bool(data[4]),
+        "controlPassed": int(data[5]),
+    }
+    return passenger
+
+
+def read_passengers(filename: str) -> List[dict]:
     """Bezpieczne czytanie pasażerów z pliku z lockowaniem"""
     try:
         with open(filename, "r") as f:
             # Ustawienie blokady na odczyt
             fcntl.flock(f.fileno(), fcntl.LOCK_SH)
             try:
-                content = f.read()
-                if not content or content == "[]":
-                    return []
-                return json.loads(content)
+                lines = f.readlines()
+                passengers = [
+                    deserialize_passenger(line) for line in lines if line.strip()
+                ]
+                return passengers
             finally:
                 # Zdjęcie blokady po zakończeniu odczytu
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
     except OSError as e:
         handle_system_error("Odczyt", filename, e)
         return []
-    except json.JSONDecodeError as e:
+    except Exception as e:
         return []
 
 
-def save_passengers(filename: str, passengers: List[Dict]):
+def save_passengers(filename: str, passengers: List[dict]):
     """Bezpieczny zapis pasażerów do pliku z lockowaniem"""
     try:
         with open(filename, "w") as f:
             # Ustawienie blokady na zapis
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
-                json.dump(passengers, f, indent=2)
+                for passenger in passengers:
+                    line = serialize_passenger(passenger) + "\n"
+                    f.write(line)
             finally:
                 # Zdjęcie blokady po zakończeniu zapisu
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
     except OSError as e:
         handle_system_error("Zapis", filename, e)
         raise
@@ -119,23 +141,12 @@ def save_passengers(filename: str, passengers: List[Dict]):
 def append_passenger(filename: str, passenger: dict):
     """Bezpieczne dodawanie pasażera do pliku z lockowaniem"""
     try:
-        with open(filename, "r+") as f:
+        with open(filename, "a") as f:
             # Ustawienie blokady na plik
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
-                # Odczyt obecnej zawartości
-                data = json.loads(f.read() or "[]")
-                # Dodanie nowego pasażera
-                data.append(passenger)
-                # Powrót na początek pliku i nadpisanie zawartości
-                f.seek(0)
-                json.dump(data, f, indent=2)
-                f.truncate()
-            except JSONDecodeError as e:
-                data = [passenger]
-                f.seek(0)
-                json.dump(data, f, indent=2)
-                f.truncate()
+                line = serialize_passenger(passenger) + "\n"
+                f.write(line)
             finally:
                 # Zdjęcie blokady
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)

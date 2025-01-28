@@ -40,12 +40,12 @@ MIN_PASSENGERS_TO_BOARD = AIRPLANE_CAPACITY
 TOTAL_PASSENGER_CHECKS = 30
 
 # Sćieżki do plików
-ENTRANCE_FILE = "../data/entrance.json"
-LUGGAGE_CHECKED_FILE = "../data/luggage_checked.json"
-LUGGAGE_REJECTED_FILE = "../data/luggage_rejected.json"
-SECURITY_CHECKED_FILE = "../data/security_checked.json"
-SECURITY_REJECTED_FILE = "../data/security_rejected.json"
-STAIRS_FILE = "../data/stairs.json"
+ENTRANCE_FILE = "../data/entrance.txt"
+LUGGAGE_CHECKED_FILE = "../data/luggage_checked.txt"
+LUGGAGE_REJECTED_FILE = "../data/luggage_rejected.txt"
+SECURITY_CHECKED_FILE = "../data/security_checked.txt"
+SECURITY_REJECTED_FILE = "../data/security_rejected.txt"
+STAIRS_FILE = "../data/stairs.txt"
 LOGS_FILE = f"../logs/logs_{floor(time())}.txt"
 LOGS_DIRECTORY = "../logs"
 STATS_DIRECTORY = "../stats"

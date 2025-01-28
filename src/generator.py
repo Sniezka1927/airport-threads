@@ -5,8 +5,7 @@ import time
 import signal
 from dataclasses import dataclass, asdict
 from multiprocessing import Process
-from utils import ensure_files_exists
-from utils import timestamp, append_passenger, log
+from utils import timestamp, append_passenger, log, ensure_files_exists
 from consts import (
     ENTRANCE_FILE,
     PASSENGER_GENERATION_MIN_DELAY,
@@ -31,6 +30,21 @@ class Passenger:
     hasDangerousItems: bool
     isVIP: bool
     controlPassed: int = 0
+
+    def to_string(self) -> str:
+        return f"{self.id};{self.gender};{self.luggageWeight};{self.hasDangerousItems};{self.isVIP};{self.controlPassed}"
+
+    @staticmethod
+    def from_string(line: str) -> "Passenger":
+        data = line.strip().split(";")
+        return Passenger(
+            id=int(data[0]),
+            gender=data[1],
+            luggageWeight=float(data[2]),
+            hasDangerousItems=bool(data[3]),
+            isVIP=bool(data[4]),
+            controlPassed=int(data[5]),
+        )
 
 
 def generate_passenger(pid) -> Passenger:
