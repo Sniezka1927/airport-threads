@@ -126,7 +126,6 @@ class Queue:
                     # Pierwsza wiadomość od góry
                     message = messages[0].rstrip("\n")
                     messages = messages[1:]
-
                     # Zapis pozostałych wiadomości
                     try:
                         with open(self.temp_path, "w") as f:
@@ -135,13 +134,11 @@ class Queue:
                     except OSError as e:
                         handle_system_error("writing", self.temp_path, e)
                         raise
-
                     try:
                         os.rename(self.temp_path, self.queue_path)
                     except OSError as e:
                         handle_system_error("renaming", self.temp_path, e)
                         raise
-
                     # Konwersja na tuple jeśli zawiera separator
                     if ";" in message:
                         return tuple(message.split(";"))

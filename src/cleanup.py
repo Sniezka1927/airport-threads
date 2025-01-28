@@ -6,7 +6,13 @@ from consts import (
     LUGGAGE_REJECTED_FILE,
     SECURITY_CHECKED_FILE,
     SECURITY_REJECTED_FILE,
-    STAIRS_FILE
+    STAIRS_FILE,
+    FROM_AIRPLANE_QUEUE,
+    FROM_GATE_QUEUE,
+    FROM_LUGGAGE_QUEUE,
+    TO_AIRPLANE_QUEUE,
+    TO_GATE_QUEUE,
+    TO_LUGGAGE_QUEUE,
 )
 
 
@@ -24,7 +30,17 @@ def clear_files(logs: bool = True):
         LUGGAGE_REJECTED_FILE,
         SECURITY_CHECKED_FILE,
         SECURITY_REJECTED_FILE,
-        STAIRS_FILE
+        STAIRS_FILE,
+    ]
+
+    # Kolejki
+    queues = [
+        FROM_AIRPLANE_QUEUE,
+        FROM_GATE_QUEUE,
+        FROM_LUGGAGE_QUEUE,
+        TO_AIRPLANE_QUEUE,
+        TO_GATE_QUEUE,
+        TO_LUGGAGE_QUEUE,
     ]
 
     # Upewnij się, że katalog istnieje
@@ -33,8 +49,18 @@ def clear_files(logs: bool = True):
     for file_path in files:
         try:
             # Stwórz lub wyczyść plik
-            with open(file_path, 'w') as f:
-                f.write('[]')
+            with open(file_path, "w") as f:
+                f.write("[]")
+            if logs:
+                print(f"Wyczyszczono plik: {file_path}")
+        except Exception as e:
+            print(f"Błąd podczas czyszczenia pliku {file_path}: {e}")
+
+    for file_path in queues:
+        try:
+            # Stwórz lub wyczyść plik
+            with open(file_path, "w") as f:
+                f.write("")
             if logs:
                 print(f"Wyczyszczono plik: {file_path}")
         except Exception as e:

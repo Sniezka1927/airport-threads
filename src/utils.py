@@ -3,7 +3,6 @@ import fcntl
 import signal
 import errno
 import time
-import subprocess
 from json import JSONDecodeError
 from typing import List, Dict
 import json

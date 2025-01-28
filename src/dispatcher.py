@@ -47,33 +47,17 @@ class Dispatcher:
             num_passengers = len(passengers)
 
             try:
-                signal = self.from_airplane_queue.get(10)
-                self.is_boarding = False
+                signal = self.from_airplane_queue.get()
                 # Jeśli wszyscy pasażerowie weszli na pokład, pozwól na start samolotu
                 if signal == "boarding_complete":
-                    self.to_airplane_queue.put("takeoff_allowed", 10)
-
+                    self.to_airplane_queue.put("takeoff_allowed")
+                    self.is_boarding = False
                 elif signal == "fly_completed":
                     self.available_airplanes += 1
             except Empty:
                 pass
 
             # Jeśli jest wystarczająca liczba pasażerów i są dostępne samoloty, przygotuj samolot do odlotu
-            print(
-                "num_passengers",
-                num_passengers,
-                "MIN_PASSENGERS_TO_BOARD",
-                MIN_PASSENGERS_TO_BOARD,
-                "self.available_airplanes",
-                self.available_airplanes,
-                "self.is_boarding",
-                self.is_boarding,
-            )
-            print(
-                num_passengers >= MIN_PASSENGERS_TO_BOARD,
-                self.available_airplanes > 0,
-                not self.is_boarding,
-            )
             if (
                 num_passengers >= MIN_PASSENGERS_TO_BOARD
                 and self.available_airplanes > 0
