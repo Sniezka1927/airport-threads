@@ -12,9 +12,12 @@ from consts import (
     MAX_PASSENGERS_FOR_SHUTDOWN,
     MESSAGES,
     LOCATIONS,
-    GATE_QUEUE,
-    AIRPLANE_QUEUE,
-    LUGGAGE_QUEUE,
+    TO_AIRPLANE_QUEUE,
+    TO_GATE_QUEUE,
+    TO_LUGGAGE_QUEUE,
+    FROM_AIRPLANE_QUEUE,
+    FROM_GATE_QUEUE,
+    FROM_LUGGAGE_QUEUE,
 )
 from gate import process_passengers
 from airplane import board_passengers
@@ -24,13 +27,16 @@ from random import randint
 
 class Dispatcher:
     def __init__(self):
-        self.gate_queue = Queue(GATE_QUEUE)
-        self.airplane_queue = Queue(AIRPLANE_QUEUE)
-        self.luggage_queue = Queue(LUGGAGE_QUEUE)
-
+        self.to_gate_queue = Queue(TO_GATE_QUEUE)
+        self.from_gate_queue = Queue(FROM_GATE_QUEUE)
+        self.to_airplane_queue = Queue(TO_AIRPLANE_QUEUE)
+        self.from_airplane_queue = Queue(FROM_AIRPLANE_QUEUE)
+        self.to_luggage_queue = Queue(TO_LUGGAGE_QUEUE)
+        self.from_luggage_queue = Queue(FROM_LUGGAGE_QUEUE)
         self.active_processes = []
         self.running = True
         self.available_airplanes = AIRPORT_AIRPLANES_COUNT
+        self.is_boarding = False
 
     def dispatcher_loop(self):
         """Głowna pętla dyspozytora, sprawdza czy są pasażerowie do obsłużenia i czy są dostępne samoloty"""
@@ -40,53 +46,57 @@ class Dispatcher:
             passengers = read_passengers(SECURITY_CHECKED_FILE)
             num_passengers = len(passengers)
 
+            if not self.from_airplane_queue.empty():
+                signal = self.from_airplane_queue.get()
+                # Jeśli wszyscy pasażerowie weszli na pokład, pozwól na start samolotu
+                if signal == "boarding_complete":
+                    self.to_airplane_queue.put("takeoff_allowed")
+                    self.is_boarding = False
+                elif signal == "fly_completed":
+                    self.available_airplanes += 1
+
             # Jeśli jest wystarczająca liczba pasażerów i są dostępne samoloty, przygotuj samolot do odlotu
             if (
                 num_passengers >= MIN_PASSENGERS_TO_BOARD
-                and self.available_airplanes.value > 0
+                and self.available_airplanes > 0
+                and not self.is_boarding
             ):
-                with self.available_airplanes.get_lock():
-                    self.available_airplanes.value -= 1
+
+                self.is_boarding = True
+                self.available_airplanes -= 1
                 # Limit bagażu dla samolotu
                 luggage_limit = randint(
                     MIN_AIRPLANE_LUGGAGE_CAPACITY, MAX_AIRPLANE_LUGGAGE_CAPACITY
                 )
                 log(
-                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.AIRPLANE_READY} (dostępnych: {self.available_airplanes.value})"
+                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.AIRPLANE_READY} (dostępnych: {self.available_airplanes})"
                 )
 
                 # Tworzenie nowego procesu dla samolotu
                 airplane_process = Process(
                     target=board_passengers,
                     args=(
-                        self.airplane_queue,
+                        self.from_airplane_queue,
+                        self.to_airplane_queue,
                         AIRPLANE_CAPACITY,
                         luggage_limit,
-                        self.available_airplanes,
                     ),
                 )
                 airplane_process.start()
                 self.active_processes.append(airplane_process)
 
                 # Przekaż informacje o gotowości samolotu do bramki
-                self.gate_queue.put(
+                self.to_gate_queue.put(
                     ("airplane_ready", AIRPLANE_CAPACITY, luggage_limit)
                 )
-
-                signal = self.airplane_queue.get()
-                # Jeśli wszyscy pasażerowie weszli na pokład, pozwól na start samolotu
-                if signal == "boarding_complete":
-                    self.airplane_queue.put("takeoff_allowed")
-                elif signal == "fly_completed":
-                    self.available_airplanes += 1
             else:
                 time.sleep(1)
 
             # Sprawdź czy lotnisko nie jest przepełnione, jeżeli tak, zamknij lotnisko
             if num_passengers >= MAX_PASSENGERS_FOR_SHUTDOWN:
                 log(f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.OVERPOPULATE}")
-                self.luggage_queue.put("close_airport")
-                self.gate_queue.put(("close_airport", None, None))
+                self.to_luggage_queue.put("close_airport")
+                self.to_gate_queue.put(("close_airport", None, None))
 
     def terminate_all_processes(self):
         """Zatrzymuje wszystkie procesy samolotów i czysci kolejki"""

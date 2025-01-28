@@ -49,9 +49,12 @@ LOGS_DIRECTORY = "../logs"
 STATS_DIRECTORY = "../stats"
 
 # Sćieżki do kolejek
-GATE_QUEUE = "./tmp/gate_queue"
-AIRPLANE_QUEUE = "./tmp/airplane_queue"
-LUGGAGE_QUEUE = "./tmp/luggage_queue"
+TO_GATE_QUEUE = "./tmp/to_gate_queue"
+FROM_GATE_QUEUE = "./tmp/from_gate_queue"
+TO_AIRPLANE_QUEUE = "./tmp/to_airplane_queue"
+FROM_AIRPLANE_QUEUE = "./tmp/from_airplane_queue"
+TO_LUGGAGE_QUEUE = "./tmp/to_luggage_queue"
+FROM_LUGGAGE_QUEUE = "./tmp/from_luggage_queue"
 
 
 # Wiadmości wysyłane przez procesy

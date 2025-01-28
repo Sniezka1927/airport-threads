@@ -58,15 +58,15 @@ def handle_passengers(queue: Queue):
             total_luggage = 0
 
             # Główna pętla obsługi pasażerów
-            while boarded_passengers < airplane_capacity and passengers:
+            while boarded_passengers < int(airplane_capacity) and passengers:
                 # Czekaj na opuszczenie schodów przez pasażerów
                 while len(read_passengers(STAIRS_FILE)) > 0:
                     time.sleep(0.5)
 
                 remaining_capacity = min(
-                    STAIRS_CAPACITY, airplane_capacity - boarded_passengers
+                    STAIRS_CAPACITY, int(airplane_capacity) - boarded_passengers
                 )
-                remaining_luggage = luggage_limit - total_luggage
+                remaining_luggage = int(luggage_limit) - total_luggage
 
                 # Wybierz pasażerów, którzy zmieszczą się na schodach i ich bagaże zmieszczą się w samolocie
                 batch = select_optimal_passengers(

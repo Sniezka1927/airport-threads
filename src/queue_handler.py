@@ -21,8 +21,12 @@ class Queue:
 
     def put(self, message, timeout=None):
         """
-        Dodaje wiadomosc do kolejki
+        Dodaje wiadomosc do kolejki. Akceptuje string lub tuple.
+        Jesli message jest tuple, konwertuje je na string z separatorem ';'
         """
+        # Konwersja tuple na string jeśli potrzebna
+        if isinstance(message, tuple):
+            message = ";".join(str(item) for item in message)
 
         start_time = time.time()
         lock_fd = None
@@ -47,7 +51,7 @@ class Queue:
                             handle_system_error("reading", self.queue_path, e)
                             raise
 
-                    # Dodanie nowej
+                    # Dodanie nowej wiadomości
                     messages.append(message + "\n")
 
                     # Zapisa do pliku
@@ -136,7 +140,9 @@ class Queue:
 
     def get(self, timeout=None):
         """
-        Odbiór wiadomości z kolejki
+        Odbiór wiadomości z kolejki.
+        Jeśli wiadomość zawiera separator ';', zwraca tuple.
+        W przeciwnym razie zwraca string.
         """
         start_time = time.time()
         lock_fd = None
@@ -181,6 +187,9 @@ class Queue:
                         handle_system_error("renaming", self.temp_path, e)
                         raise
 
+                    # Konwersja na tuple jeśli zawiera separator
+                    if ";" in message:
+                        return tuple(message.split(";"))
                     return message
 
                 finally:

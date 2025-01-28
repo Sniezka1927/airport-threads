@@ -13,7 +13,8 @@ from utils import read_passengers, save_passengers, timestamp, log
 
 
 def board_passengers(
-    airplane_queue: Queue,
+    from_airplane_queue: Queue,
+    to_airplane_queue: Queue,
     airplane_capacity: int,
     luggage_limit: int,
 ):
@@ -55,20 +56,21 @@ def board_passengers(
 
         log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.BOARDING_COMPLETED}")
         # Wyslij sygnał o zakończeniu wejścia pasażerów
-        airplane_queue.put("boarding_complete")
+        from_airplane_queue.put("boarding_complete")
 
-        signal = airplane_queue.get()
+        if not to_airplane_queue.empty():
+            signal = to_airplane_queue.get()
+            if signal == "takeoff_allowed":
+                can_take_off = True
+
         passengers_on_stairs = read_passengers(STAIRS_FILE)
-
-        if signal == "takeoff_allowed":
-            can_take_off = True
 
         # Upewnij się, że wszyscy pasażerowie opuścili schody i zezwól na start samolotu
         if can_take_off and len(passengers_on_stairs) == 0:
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.FLIGHT_START}")
             time.sleep(FLIGHT_DURATION)
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.FLIGHT_ENDED}")
-            airplane_queue.put("fly_completed")
+            from_airplane_queue.put("fly_completed")
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.AIRPLANE_RETURNED}")
             can_take_off = False
             sys.exit()

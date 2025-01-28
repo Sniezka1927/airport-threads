@@ -9,9 +9,16 @@ from consts import (
     SECURITY_REJECTED_FILE,
     MESSAGES,
     LOCATIONS,
-    SECURITY_CHECKPOINTS_COUNT
+    SECURITY_CHECKPOINTS_COUNT,
 )
-from utils import ensure_files_exists, read_passengers, save_passengers, timestamp, append_passenger, log
+from utils import (
+    ensure_files_exists,
+    read_passengers,
+    save_passengers,
+    timestamp,
+    append_passenger,
+    log,
+)
 
 
 @dataclass
@@ -37,14 +44,14 @@ class CheckpointStation:
             return False
         if self.is_empty():
             return True
-        return self.current_gender == passenger['gender']
+        return self.current_gender == passenger["gender"]
 
     def add_passenger(self, passenger: Dict) -> bool:
         """Dodaje pasażera do stacji"""
         if not self.can_accept_passenger(passenger):
             return False
         if self.is_empty():
-            self.current_gender = passenger['gender']
+            self.current_gender = passenger["gender"]
         self.passengers.append(passenger)
         return True
 
@@ -57,72 +64,75 @@ class CheckpointStation:
 
 
 class SecurityCheckpoint:
-        def __init__(self, num_stations: int = SECURITY_CHECKPOINTS_COUNT):
-            self.stations = [CheckpointStation(id=i) for i in range(num_stations)]
-            # Przechowuje ID pasażerów z poprzedniej partii
-            self.previous_batch_ids = set()
+    def __init__(self, num_stations: int = SECURITY_CHECKPOINTS_COUNT):
+        self.stations = [CheckpointStation(id=i) for i in range(num_stations)]
+        # Przechowuje ID pasażerów z poprzedniej partii
+        self.previous_batch_ids = set()
 
-        def get_empty_stations(self) -> List[CheckpointStation]:
-            # Zwraca dostępne stacje do kontroli bezpieczeństwa
-            return [station for station in self.stations if station.is_empty()]
+    def get_empty_stations(self) -> List[CheckpointStation]:
+        # Zwraca dostępne stacje do kontroli bezpieczeństwa
+        return [station for station in self.stations if station.is_empty()]
 
-        def get_station_for_passenger(self, passenger: Dict) -> Optional[CheckpointStation]:
-            # Selekcja stanowiska dla pasażerów w zależności od priorytetów
-            if passenger['isVIP']:
-                for station in self.stations:
-                    if station.is_empty():
-                        return station
-
-            for station in self.stations:
-                if not station.is_full() and station.current_gender == passenger['gender']:
-                    return station
-
+    def get_station_for_passenger(self, passenger: Dict) -> Optional[CheckpointStation]:
+        # Selekcja stanowiska dla pasażerów w zależności od priorytetów
+        if passenger["isVIP"]:
             for station in self.stations:
                 if station.is_empty():
                     return station
 
-            return None
+        for station in self.stations:
+            if not station.is_full() and station.current_gender == passenger["gender"]:
+                return station
 
-        def add_passenger(self, passenger: Dict) -> bool:
-            """Sprawdza warunki płciowe i wolne miejsca na stacjach, dodaje pasażera do stacji"""
-            station = self.get_station_for_passenger(passenger)
-            if station and station.add_passenger(passenger):
-                return True
-            return False
+        for station in self.stations:
+            if station.is_empty():
+                return station
 
-        def process_stations(self) -> List[Dict]:
-            """Przetwarza wszystkie stanowiska i zwraca listę przetworzonych pasażerów"""
-            processed_passengers = []
-            current_batch_ids = set()  # ID pasażerów w obecnej partii
+        return None
 
-            # Zbieramy ID wszystkich pasażerów w obecnej partii
-            for station in self.stations:
-                if not station.is_empty():
-                    for passenger in station.passengers:
-                        current_batch_ids.add(passenger['id'])
+    def add_passenger(self, passenger: Dict) -> bool:
+        """Sprawdza warunki płciowe i wolne miejsca na stacjach, dodaje pasażera do stacji"""
+        station = self.get_station_for_passenger(passenger)
+        if station and station.add_passenger(passenger):
+            return True
+        return False
 
-            # Przetwarzamy stanowiska
-            for station in self.stations:
-                if not station.is_empty():
-                    station_passengers = list(station.passengers)
+    def process_stations(self) -> List[Dict]:
+        """Przetwarza wszystkie stanowiska i zwraca listę przetworzonych pasażerów"""
+        processed_passengers = []
+        current_batch_ids = set()  # ID pasażerów w obecnej partii
 
-                    for passenger in station_passengers:
-                        if not passenger['isVIP']:
-                            # Sprawdzamy czy w poprzedniej partii był ktoś o większym ID i zwiększamy licznik przepuszczeń
-                            higher_id_exists = any(prev_id > passenger['id']
-                                                   for prev_id in self.previous_batch_ids)
-                            if higher_id_exists:
-                                passenger['controlPassed'] = passenger.get('controlPassed', 0) + 1
+        # Zbieramy ID wszystkich pasażerów w obecnej partii
+        for station in self.stations:
+            if not station.is_empty():
+                for passenger in station.passengers:
+                    current_batch_ids.add(passenger["id"])
 
-                        processed_passengers.append({
-                            'passenger': passenger,
-                            'station_id': station.id
-                        })
-                        station.remove_passenger(passenger)
+        # Przetwarzamy stanowiska
+        for station in self.stations:
+            if not station.is_empty():
+                station_passengers = list(station.passengers)
 
-            # Aktualizujemy ID poprzedniej partii
-            self.previous_batch_ids = current_batch_ids
-            return processed_passengers
+                for passenger in station_passengers:
+                    if not passenger["isVIP"]:
+                        # Sprawdzamy czy w poprzedniej partii był ktoś o większym ID i zwiększamy licznik przepuszczeń
+                        higher_id_exists = any(
+                            prev_id > passenger["id"]
+                            for prev_id in self.previous_batch_ids
+                        )
+                        if higher_id_exists:
+                            passenger["controlPassed"] = (
+                                passenger.get("controlPassed", 0) + 1
+                            )
+
+                    processed_passengers.append(
+                        {"passenger": passenger, "station_id": station.id}
+                    )
+                    station.remove_passenger(passenger)
+
+        # Aktualizujemy ID poprzedniej partii
+        self.previous_batch_ids = current_batch_ids
+        return processed_passengers
 
 
 def find_available_station(checkpoint, passenger):
@@ -133,7 +143,7 @@ def find_available_station(checkpoint, passenger):
             continue
 
         # Sprawdź czy stacja jest pusta lub obsługuje tę samą płeć
-        if station.is_empty() or station.current_gender == passenger['gender']:
+        if station.is_empty() or station.current_gender == passenger["gender"]:
             return station
 
     return None
@@ -154,8 +164,9 @@ def get_next_passengers(checkpoint: SecurityCheckpoint) -> List[Dict]:
 
     # 1. Obsługa pasażerów z przekroczonym limitem
     exceeded_limit_passengers = [
-        p for p in remaining_passengers
-        if p.get('controlPassed', 0) >= MAX_CONTROL_PASSES
+        p
+        for p in remaining_passengers
+        if p.get("controlPassed", 0) >= MAX_CONTROL_PASSES
     ]
 
     for passenger in exceeded_limit_passengers:
@@ -165,10 +176,7 @@ def get_next_passengers(checkpoint: SecurityCheckpoint) -> List[Dict]:
             remaining_passengers.remove(passenger)
 
     # 2. Obsługa VIP-ów według płci
-    vip_passengers = [
-        p for p in remaining_passengers
-        if p['isVIP']
-    ]
+    vip_passengers = [p for p in remaining_passengers if p["isVIP"]]
 
     for vip in vip_passengers:
         station = find_available_station(checkpoint, vip)
@@ -178,8 +186,9 @@ def get_next_passengers(checkpoint: SecurityCheckpoint) -> List[Dict]:
 
     # 3. Obsługa pozostałych pasażerów w kolejności od góry
     regular_passengers = [
-        p for p in remaining_passengers
-        if not p['isVIP'] and p.get('controlPassed', 0) < MAX_CONTROL_PASSES
+        p
+        for p in remaining_passengers
+        if not p["isVIP"] and p.get("controlPassed", 0) < MAX_CONTROL_PASSES
     ]
 
     for passenger in regular_passengers:
@@ -191,15 +200,18 @@ def get_next_passengers(checkpoint: SecurityCheckpoint) -> List[Dict]:
     save_passengers(LUGGAGE_CHECKED_FILE, remaining_passengers)
     return selected_passengers
 
+
 def process_passengers(checkpoint: SecurityCheckpoint):
     """Główna funkcja przetwarzająca pasażerów na stanowiskach kontroli bezpieczeństwa"""
     # Pobierz nowych pasażerów do pustych stanowisk
     if checkpoint.get_empty_stations():
         selected_passengers = get_next_passengers(checkpoint)
         for passenger in selected_passengers:
-            log(f"{timestamp()} - {LOCATIONS.SECURITY}: "
-                  f"Pasażer ID={passenger['id']} {'(VIP) ' if passenger['isVIP'] else ''}"
-                  f"płeć={passenger['gender']} {MESSAGES.SECURITY_CONTROL_BEGIN}")
+            log(
+                f"{timestamp()} - {LOCATIONS.SECURITY}: "
+                f"Pasażer ID={passenger['id']} {'(VIP) ' if passenger['isVIP'] else ''}"
+                f"płeć={passenger['gender']} {MESSAGES.SECURITY_CONTROL_BEGIN}"
+            )
 
     # Przetwórz pasażerów na wszystkich stanowiskach
     if any(not station.is_empty() for station in checkpoint.stations):
@@ -207,17 +219,21 @@ def process_passengers(checkpoint: SecurityCheckpoint):
         processed = checkpoint.process_stations()
 
         for item in processed:
-            passenger = item['passenger']
-            station_id = item['station_id']
+            passenger = item["passenger"]
+            station_id = item["station_id"]
 
             # Sprawdź czy pasażer ma niebezpieczne przedmioty
-            if passenger['hasDangerousItems']:
-                log(f"{timestamp()} - {LOCATIONS.SECURITY}: Stanowisko {station_id}: Pasażer ID={passenger['id']} "
-                      f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_REJECT}")
+            if passenger["hasDangerousItems"]:
+                log(
+                    f"{timestamp()} - {LOCATIONS.SECURITY}: Stanowisko {station_id}: Pasażer ID={passenger['id']} "
+                    f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_REJECT}"
+                )
                 append_passenger(SECURITY_REJECTED_FILE, passenger)
             else:
-                log(f"{timestamp()} - {LOCATIONS.SECURITY}: Stanowisko {station_id}: Pasażer ID={passenger['id']} "
-                      f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_OK}")
+                log(
+                    f"{timestamp()} - {LOCATIONS.SECURITY}: Stanowisko {station_id}: Pasażer ID={passenger['id']} "
+                    f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_OK}"
+                )
                 append_passenger(SECURITY_CHECKED_FILE, passenger)
 
 

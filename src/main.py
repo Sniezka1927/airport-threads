@@ -16,11 +16,11 @@ def main():
     dispatcher = Dispatcher()
     generator_process = Process(target=generate_continuously)
     luggage_control_process = Process(
-        target=check_luggage_continuously, args=(dispatcher.luggage_queue,)
+        target=check_luggage_continuously, args=(dispatcher.from_airplane_queue,)
     )
     security_control_process = Process(target=check_security_continuously)
     dispatcher_process = Process(target=dispatcher.dispatcher_loop)
-    gate_process = Process(target=process_passengers, args=(dispatcher.gate_queue,))
+    gate_process = Process(target=process_passengers, args=(dispatcher.to_gate_queue,))
 
     try:
         dispatcher_process.start()
