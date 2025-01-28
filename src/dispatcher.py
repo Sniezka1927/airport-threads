@@ -1,6 +1,5 @@
 import time
 import os
-import sys
 from queue_handler import Queue, Empty
 from consts import (
     SECURITY_CHECKED_FILE,

@@ -73,6 +73,7 @@ def ensure_files_exists(filenames: List[str]):
 
 
 def serialize_passenger(passenger) -> str:
+    """Serializacja pasażera do postaci tekstowej"""
     return f"{passenger['id']};{passenger['gender']};{passenger['luggageWeight']};{passenger['hasDangerousItems']};{passenger['isVIP']};{passenger['controlPassed']}"
 
 
@@ -81,6 +82,7 @@ def str_to_bool(string: str) -> bool:
 
 
 def deserialize_passenger(line: str):
+    """Odczytanie pasażera z linii tekstu"""
     data = line.strip().split(";")
     passenger = {
         "id": int(data[0]),

@@ -1,6 +1,5 @@
 import time
 from multiprocessing import Process
-from typing import List, Dict, Optional
 from dataclasses import dataclass
 from consts import (
     MAX_CONTROL_PASSES,
@@ -31,6 +30,7 @@ class SecurityStation:
         self.file_name = get_file_name(station_id)
 
     def can_add_passenger(self, passenger):
+        """Sprawdź czy można dodać pasażera do stanowiska"""
         if not self.current_passengers:
             return True
         return (
@@ -39,22 +39,20 @@ class SecurityStation:
         )
 
     def add_passenger(self, passenger):
+        """Dodaj pasażera do stanowiska"""
         if not self.current_passengers:
             self.current_gender = passenger["gender"]
         self.current_passengers.append(passenger)
 
-    def remove_passenger(self, passenger):
-        self.current_passengers.remove(passenger)
-        if not self.current_passengers:
-            self.current_gender = None
-
     def requires_skip(self, passenger, waiting_queue):
+        """Wymaga pominięcia pasażera"""
         skip = waiting_queue[0]["id"] != passenger["id"]
         if skip:
             waiting_queue[0]["controlPassed"] += 1
         return waiting_queue
 
     def control(self):
+        """Kontrola pasażerów na stanowisku"""
         for passenger in self.current_passengers:
             log(
                 f"{timestamp()} - {LOCATIONS.SECURITY}: {MESSAGES.SECURITY_CONTROL_BEGIN}"
@@ -77,6 +75,7 @@ class SecurityStation:
         self.current_gender = None
 
     def get_next_passengers(self):
+        """Wybierz pasażerów do kontroli"""
         waiting_queue = read_passengers(self.file_name)
         waiting_vips = [p for p in waiting_queue if p["isVIP"]]
         passengers_with_skip_limit = [

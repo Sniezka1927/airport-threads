@@ -98,7 +98,7 @@ def handle_passengers(queue: Queue):
 
                 boarded_passengers += len(batch)
                 total_luggage += batch_luggage
-                time.sleep(1)  # Time to move the group
+                time.sleep(1)  # Czas na przejście grupy pasażerów
     except Empty:
         pass
 

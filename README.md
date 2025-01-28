@@ -124,10 +124,7 @@ Projekt zawiera kompleksowy zestaw testów podzielony na dwie główne kategorie
   - [TEST_2](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_gate.py#L40-L57): Sprawdzenie odlotu samolotu przy braku pasażerów do zapełnienia samolotu
   - [TEST_3](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_gate.py#L60-L77): Sprawdzenie odlotu samolotu przy nadmiarze pasażerów oczekujących na odlot
 
-#### 2. Test end-to-end:
 
-- `./tests/test_e2e.py` - [test integracyjny sprawdzający przepływ pasażerów przez cały system](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_e2e.py)
-  - [TEST_1](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_e2e.py#L41-L105): Przepływ pasażerów przez cały system lotniskowy. Sprawdzenie wydajnościowe kontroli bagażowej oraz bezpieczeństwa. Synchronizacja wielu odlotów oraz powrót samolotów na lotnisko.
 
 ### 5.2 Zakres testów
 
@@ -138,20 +135,13 @@ Każdy moduł ma dedykowany zestaw testów sprawdzających:
 - Poprawność walidacji danych
 - Obsługę skrajnych przypadków
 
-#### Test end-to-end
 
-Test `./tests/test_e2e.py` weryfikuje:
-
-- Pełny przepływ pasażera przez system
-- Integrację wszystkich komponentów
-- Poprawność synchronizacji procesów
 
 ## 6. Elementy wyróżniające projekt
 
 - Zaawansowany system logowania i [statystyk](https://github.com/Sniezka1927/airport-threads/blob/master/src/stats.py):
 - Moduł `stats.py` zbierający kompleksowe statystyki
 - System logowania z timestampami
-- Testy end-to-end
 - Wielopoziomowa walidacja:
 
 ## 7. Wnioski
@@ -200,5 +190,4 @@ pytest test_generator.py -s
 pytest test_luggageControl.py -s
 pytest test_securityControl.py -s
 pytest test_gate.py -s
-pytest test_e2e.py -s
 ```

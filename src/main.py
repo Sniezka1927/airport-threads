@@ -1,5 +1,5 @@
 import os
-import sys
+import signal
 from gate import process_passengers
 from dispatcher import Dispatcher
 from generator import generate_continuously
@@ -17,7 +17,6 @@ class ProcessManager:
     def fork_process(self, target_function, args=()):
         pid = os.fork()
         if pid == 0:
-            # Child process
             try:
                 if args:
                     target_function(*args)
@@ -27,17 +26,16 @@ class ProcessManager:
             except KeyboardInterrupt:
                 os._exit(0)
         else:
-            # Parent process
             self.child_pids.append(pid)
             return pid
 
     def terminate_all(self):
         for pid in self.child_pids:
             try:
-                os.kill(pid, 15)  # SIGTERM
+                os.kill(pid, signal.SIGTERM)
                 os.waitpid(pid, 0)
             except OSError:
-                pass  # Process might already be terminated
+                pass
         self.child_pids = []
 
 
