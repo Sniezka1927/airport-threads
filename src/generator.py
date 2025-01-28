@@ -15,6 +15,7 @@ from consts import (
     VIP_PROBABILITY,
     MIN_LUGGAGE_WEIGHT,
     MAX_LUGGAGE_WEIGHT,
+    MAX_PASSENGER_PROCESSES,
     LOCATIONS,
     MESSAGES,
 )
@@ -76,6 +77,17 @@ def child_signal_handler(signum, frame):
     os.kill(os.getpid(), signal.SIGKILL)  # Wymuszamy natychmiastowe zakończenie
 
 
+def cleanup_zombies():
+    try:
+        while True:
+            wpid, status = os.waitpid(-1, os.WNOHANG)
+            if wpid == 0:
+                break
+            child_pids.discard(wpid)
+    except ChildProcessError:
+        pass
+
+
 def generate_continuously():
     signal.signal(signal.SIGINT, parent_signal_handler)
     signal.signal(signal.SIGTERM, parent_signal_handler)
@@ -83,40 +95,35 @@ def generate_continuously():
     ensure_files_exists([ENTRANCE_FILE])
 
     while True:
-        pid = os.fork()
-        if pid == 0:
-            # Proces potomny
-            try:
-                signal.signal(signal.SIGINT, child_signal_handler)
-                signal.signal(signal.SIGTERM, child_signal_handler)
+        if len(child_pids) < MAX_PASSENGER_PROCESSES:
+            pid = os.fork()
+            if pid == 0:
+                # Proces potomny
+                try:
+                    signal.signal(signal.SIGINT, child_signal_handler)
+                    signal.signal(signal.SIGTERM, child_signal_handler)
 
-                passenger = generate_passenger(os.getpid())
-                handle_passenger(passenger)
+                    passenger = generate_passenger(os.getpid())
+                    handle_passenger(passenger)
 
-                # Czekamy na sygnał zakończenia
-                signal.pause()
+                    # Czekamy na sygnał zakończenia
+                    signal.pause()
 
-            except Exception as e:
-                print(f"Błąd w procesie potomnym: {e}")
-                os._exit(1)
+                except Exception as e:
+                    print(f"Błąd w procesie potomnym: {e}")
+                    os._exit(1)
+            else:
+                # Proces główny
+                child_pids.add(pid)
+                # Czyścimy zakończone procesy potomne
+                cleanup_zombies()
         else:
-            # Proces główny
-            child_pids.add(pid)
-            # Czyścimy zakończone procesy potomne
-            try:
-                while True:
-                    wpid, status = os.waitpid(-1, os.WNOHANG)
-                    if wpid == 0:
-                        break
-                    child_pids.discard(wpid)
-            except ChildProcessError:
-                pass
-
-            time.sleep(
-                random.uniform(
-                    PASSENGER_GENERATION_MIN_DELAY, PASSENGER_GENERATION_MAX_DELAY
-                )
+            cleanup_zombies()
+        time.sleep(
+            random.uniform(
+                PASSENGER_GENERATION_MIN_DELAY, PASSENGER_GENERATION_MAX_DELAY
             )
+        )
 
 
 if __name__ == "__main__":

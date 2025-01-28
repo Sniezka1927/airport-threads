@@ -59,12 +59,14 @@ def board_passengers(
         # Wyslij sygnał o zakończeniu wejścia pasażerów
         from_airplane_queue.put("boarding_complete")
 
-        try:
-            signal = to_airplane_queue.get()
-            if signal == "takeoff_allowed":
-                can_take_off = True
-        except Empty:
-            pass
+        while not can_take_off:
+            try:
+                signal = to_airplane_queue.get()
+                if signal == "takeoff_allowed":
+                    can_take_off = True
+            except Empty:
+                pass
+            time.sleep(1)
 
         passengers_on_stairs = read_passengers(STAIRS_FILE)
 

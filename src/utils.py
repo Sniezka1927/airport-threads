@@ -21,6 +21,8 @@ from consts import (
     MIN_LUGGAGE_WEIGHT,
     MAX_LUGGAGE_WEIGHT,
     MAX_AIRPLANE_LUGGAGE_CAPACITY,
+    MAX_ACCEPTABLE_PASSENGERS_PROCESSES,
+    MAX_PASSENGER_PROCESSES,
 )
 
 
@@ -209,6 +211,10 @@ def validate_config():
     if not (MIN_LUGGAGE_WEIGHT >= 0 and MIN_LUGGAGE_WEIGHT <= MAX_LUGGAGE_WEIGHT):
         raise ValueError(
             "MIN_LUGGAGE_CAPACITY musi być większe bądź równa 0 i mniejsze bądź równe MAX_LUGGAGE_WEIGHT"
+        )
+    if not (MAX_PASSENGER_PROCESSES <= MAX_ACCEPTABLE_PASSENGERS_PROCESSES):
+        raise ValueError(
+            "MAX_PASSENGER_PROCESSES musi być mniejsze bądź równe MAX_ACCEPTABLE_PASSENGERS_PROCESSES"
         )
     if not (MAX_AIRPLANE_LUGGAGE_CAPACITY >= MIN_AIRPLANE_LUGGAGE_CAPACITY):
         raise ValueError(
