@@ -22,32 +22,24 @@ class Passenger:
         return f"Pasażer {self.pid} {'VIP' if self.is_vip else 'zwykły'} (płeć: {self.gender}, bagaż: {self.baggage_weight} kg)"
 
 
-def generate_passenger(pid, write_pipe):
-    is_vip = random.random() < VIP_PROBABILITY
-    baggage_weight = random.randint(10, 30)
-    gender = random.choice(["M", "F"])
-    passenger = Passenger(pid, is_vip, baggage_weight, gender)
-    passenger_data = f"{pid}|{is_vip}|{baggage_weight}|{gender}"
-    os.write(write_pipe, f"{passenger_data}{MESSAGE_SEPARATOR}".encode())
-    print(f"Wygenerowano: {passenger}")
-
-
 def generate_passengers(write_pipe):
     try:
         for i in range(1, MAX_PASSENGERS + 1):
             time.sleep(0.2)
-            pid = os.fork()
-            if pid == 0:  # Proces dziecka
-                generate_passenger(i, write_pipe)
-            else:  # Proces rodzica
-                os.waitpid(pid, 0)  # Czekaj na zakończenie procesu dziecka
-
+            is_vip = random.random() < VIP_PROBABILITY
+            baggage_weight = random.randint(10, 30)
+            gender = random.choice(["M", "F"])
+            passenger = Passenger(i, is_vip, baggage_weight, gender)
+            passenger_data = f"{i}|{is_vip}|{baggage_weight}|{gender}"
+            os.write(write_pipe, f"{passenger_data}{MESSAGE_SEPARATOR}".encode())
+            print(f"Wygenerowano: {passenger}")
         os.write(write_pipe, f"END{MESSAGE_SEPARATOR}".encode())
 
         # Wait until all passengers have passed security check
         while passed_security_count < MAX_PASSENGERS:
             time.sleep(0.1)
 
+        print("Wszyscy pasażerowie przeszli kontrolę bezpieczeństwa.")
     except KeyboardInterrupt:
         os.write(write_pipe, f"END{MESSAGE_SEPARATOR}".encode())
         sys.exit(0)
