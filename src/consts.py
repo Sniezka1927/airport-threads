@@ -2,12 +2,12 @@ from time import time
 from math import floor
 
 # Konfiguracja lotniska
-AIRPORT_LUGGAGE_LIMIT = 15  # kg
+AIRPORT_LUGGAGE_LIMIT = 14.0  # kg
 AIRPORT_AIRPLANES_COUNT = 5
 MAX_PASSENGER_PROCESSES = 20
 
 # Konfiguracja generatora pasażerów
-DANGEROUS_ITEMS_PROBABILITY = 0  # 1% chance
+DANGEROUS_ITEMS_PROBABILITY = 0.01  # 1% chance
 VIP_PROBABILITY = 0.05  # 5% chance
 MIN_LUGGAGE_WEIGHT = 1.0  # kg
 MAX_LUGGAGE_WEIGHT = 15.0  # kg
