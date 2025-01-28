@@ -1,4 +1,4 @@
-import sys
+import os
 import time
 from queue_handler import Queue, Empty
 from consts import (
@@ -80,7 +80,7 @@ def board_passengers(
             can_take_off = False
             for passenger in boarded_passengers:
                 terminate_process(int(passenger["id"]), "airplane")
-            sys.exit()
+            os._exit(0)
     except KeyboardInterrupt:
         print(f"{timestamp()} - {LOCATIONS.AIRPLANE}: kończenie procesu")
         save_passengers(STAIRS_FILE, [])

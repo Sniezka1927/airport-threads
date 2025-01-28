@@ -1,4 +1,5 @@
-from multiprocessing import Process
+import os
+import sys
 from gate import process_passengers
 from dispatcher import Dispatcher
 from generator import generate_continuously
@@ -9,66 +10,79 @@ from utils import validate_config
 from stats import Statistics
 
 
+class ProcessManager:
+    def __init__(self):
+        self.child_pids = []
+
+    def fork_process(self, target_function, args=()):
+        pid = os.fork()
+        if pid == 0:
+            # Child process
+            try:
+                if args:
+                    target_function(*args)
+                else:
+                    target_function()
+                os._exit(0)
+            except KeyboardInterrupt:
+                os._exit(0)
+        else:
+            # Parent process
+            self.child_pids.append(pid)
+            return pid
+
+    def terminate_all(self):
+        for pid in self.child_pids:
+            try:
+                os.kill(pid, 15)  # SIGTERM
+                os.waitpid(pid, 0)
+            except OSError:
+                pass  # Process might already be terminated
+        self.child_pids = []
+
+
 def main():
     clear_files()
     validate_config()
 
+    process_manager = ProcessManager()
     dispatcher = Dispatcher()
-    generator_process = Process(target=generate_continuously)
-    luggage_control_process = Process(
-        target=check_luggage_continuously, args=(dispatcher.to_luggage_queue,)
-    )
-    security_control_process = Process(target=check_security_continuously)
-    dispatcher_process = Process(target=dispatcher.dispatcher_loop)
-    gate_process = Process(target=process_passengers, args=(dispatcher.to_gate_queue,))
 
     try:
-        dispatcher_process.start()
-        gate_process.start()
-        generator_process.start()
-        luggage_control_process.start()
-        security_control_process.start()
-        # Czekanie na zakończenie procesów
-        dispatcher_process.join()
-        gate_process.join()
-        generator_process.join()
-        luggage_control_process.join()
-        security_control_process.join()
+        # Start procesów
+        process_manager.fork_process(dispatcher.dispatcher_loop)
+        process_manager.fork_process(process_passengers, (dispatcher.to_gate_queue,))
+        process_manager.fork_process(generate_continuously)
+        process_manager.fork_process(
+            check_luggage_continuously, (dispatcher.to_luggage_queue,)
+        )
+        process_manager.fork_process(check_security_continuously)
+
+        # Oczekiwania na ich zakończenie
+        while True:
+            try:
+                pid, status = os.waitpid(-1, 0)
+                if pid > 0:
+                    process_manager.child_pids.remove(pid)
+                if not process_manager.child_pids:
+                    break
+            except OSError:
+                break
+            except KeyboardInterrupt:
+                raise
 
     except KeyboardInterrupt:
         print("\nOtrzymano sygnał zakończenia...")
-        # Kończenie procesów
-        if generator_process.is_alive():
-            print("Kończenie procesu generatora...")
-            generator_process.terminate()
 
-        if luggage_control_process.is_alive():
-            print("Kończenie procesu kontroli bagażowej...")
-            luggage_control_process.terminate()
-
-        if security_control_process.is_alive():
-            print("Kończenie procesu kontroli bezpieczeństwa...")
-            security_control_process.terminate()
-
-        # Zakończ wszystkie procesy samolotów
+    finally:
+        print("Kończenie wszystkich procesów...")
+        # Kończenie procesu dispatcher'a
         dispatcher.terminate_all_processes()
-
-        if dispatcher_process.is_alive():
-            print("Kończenie procesu dyspozytora...")
-            dispatcher_process.terminate()
-
-        if gate_process.is_alive():
-            print("Kończenie procesu gate'ów...")
-            gate_process.terminate()
-
-        # Kończenie procesów
-        generator_process.join()
-        luggage_control_process.join()
-        security_control_process.join()
-        dispatcher_process.join()
-        gate_process.join()
-
+        # Kończenie głownych porcesów
+        process_manager.terminate_all()
         print("Wszystkie procesy zostały zakończone.")
+
+        # Collect statystyk
         stats = Statistics()
         stats.collect()
         stats.save()
