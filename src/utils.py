@@ -3,9 +3,7 @@ import fcntl
 import signal
 import errno
 import time
-from json import JSONDecodeError
-from typing import List, Dict
-import json
+from typing import List
 import sys
 from datetime import datetime
 from consts import LOGS_FILE, LOGS_DIRECTORY
@@ -23,6 +21,8 @@ from consts import (
     MAX_AIRPLANE_LUGGAGE_CAPACITY,
     MAX_ACCEPTABLE_PASSENGERS_PROCESSES,
     MAX_PASSENGER_PROCESSES,
+    MIN_FLIGHT_DURATION,
+    MAX_FLIGHT_DURATION,
 )
 
 
@@ -230,6 +230,10 @@ def validate_config():
     if not (MAX_AIRPLANE_LUGGAGE_CAPACITY >= MIN_AIRPLANE_LUGGAGE_CAPACITY):
         raise ValueError(
             "MAX_AIRPLANE_LUGGAGE_CAPACITY musi bć większe bądź róœne MIN_AIRPLANE_LUGGAGE_CAPACITY"
+        )
+    if not (MIN_FLIGHT_DURATION >= 0 and MIN_FLIGHT_DURATION <= MAX_FLIGHT_DURATION):
+        raise ValueError(
+            "MIN_FLIGHT_DURATION musi być większe bądź równe 0 i mniejsze bądź równe MAX_FLIGHT_DURATION"
         )
 
 

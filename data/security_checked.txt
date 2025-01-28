@@ -1,0 +1,3 @@
+492829509;F;10.23;False;True;0
+655932909;M;7.29;False;False;1
+254343635;M;6.67;False;False;0

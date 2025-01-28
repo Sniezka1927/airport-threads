@@ -20,7 +20,7 @@ from consts import (
     FROM_LUGGAGE_QUEUE,
 )
 from airplane import board_passengers
-from utils import read_passengers, timestamp, log
+from utils import read_passengers, timestamp, log, terminate_process
 from random import randint
 
 
@@ -129,6 +129,8 @@ class Dispatcher:
     def terminate_all_processes(self):
         """Czyści stan dyspozytora bez kończenia procesów"""
         self.running = False
+        for pid in list(self.airplane_pids):
+            terminate_process(pid, "airplane")
         self.airplane_pids.clear()
         self.available_airplanes = None
         print("Dispatcher zakończył pracę.")

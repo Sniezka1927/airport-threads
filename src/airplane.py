@@ -1,9 +1,11 @@
 import os
 import time
 from queue_handler import Queue, Empty
+import random
 from consts import (
     STAIRS_FILE,
-    FLIGHT_DURATION,
+    MIN_FLIGHT_DURATION,
+    MAX_FLIGHT_DURATION,
     TOTAL_PASSENGER_CHECKS,
     MESSAGES,
     LOCATIONS,
@@ -73,7 +75,7 @@ def board_passengers(
         # Upewnij się, że wszyscy pasażerowie opuścili schody i zezwól na start samolotu
         if can_take_off and len(passengers_on_stairs) == 0:
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.FLIGHT_START}")
-            time.sleep(FLIGHT_DURATION)
+            time.sleep(random.randint(MIN_FLIGHT_DURATION, MAX_FLIGHT_DURATION))
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.FLIGHT_ENDED}")
             from_airplane_queue.put("fly_completed")
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.AIRPLANE_RETURNED}")

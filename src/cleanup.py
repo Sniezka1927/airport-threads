@@ -13,6 +13,7 @@ from consts import (
     TO_AIRPLANE_QUEUE,
     TO_GATE_QUEUE,
     TO_LUGGAGE_QUEUE,
+    SECURITY_CHECKPOINTS_COUNT,
 )
 
 
@@ -24,6 +25,13 @@ def ensure_directory_exists():
 def clear_files(logs: bool = True):
     """Wyczyść wszystkie pliki systemu"""
     # Lista wszystkich plików do wyczyszczenia
+
+    luggage_checked_files = []
+    for i in range(SECURITY_CHECKPOINTS_COUNT):
+        luggage_checked_files.append(
+            f"{LUGGAGE_CHECKED_FILE.replace('.txt', '')}_{i}.txt"
+        )
+
     files = [
         ENTRANCE_FILE,
         LUGGAGE_CHECKED_FILE,
@@ -31,7 +39,7 @@ def clear_files(logs: bool = True):
         SECURITY_CHECKED_FILE,
         SECURITY_REJECTED_FILE,
         STAIRS_FILE,
-    ]
+    ] + luggage_checked_files
 
     # Kolejki
     queues = [
