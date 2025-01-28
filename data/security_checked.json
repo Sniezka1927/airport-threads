@@ -1,1 +1,146 @@
-[]
+[
+  {
+    "id": 42456,
+    "gender": "M",
+    "luggageWeight": 4.4,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42457,
+    "gender": "F",
+    "luggageWeight": 2.01,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42540,
+    "gender": "M",
+    "luggageWeight": 2.48,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42541,
+    "gender": "F",
+    "luggageWeight": 3.28,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42542,
+    "gender": "M",
+    "luggageWeight": 10.09,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42543,
+    "gender": "M",
+    "luggageWeight": 8.79,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42544,
+    "gender": "F",
+    "luggageWeight": 1.95,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42613,
+    "gender": "F",
+    "luggageWeight": 2.17,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42614,
+    "gender": "F",
+    "luggageWeight": 10.53,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42616,
+    "gender": "F",
+    "luggageWeight": 12.12,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42618,
+    "gender": "F",
+    "luggageWeight": 7.23,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42670,
+    "gender": "F",
+    "luggageWeight": 12.0,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42741,
+    "gender": "F",
+    "luggageWeight": 1.96,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42740,
+    "gender": "M",
+    "luggageWeight": 5.01,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42742,
+    "gender": "M",
+    "luggageWeight": 8.25,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42743,
+    "gender": "M",
+    "luggageWeight": 4.41,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42745,
+    "gender": "M",
+    "luggageWeight": 4.74,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  },
+  {
+    "id": 42854,
+    "gender": "F",
+    "luggageWeight": 3.6,
+    "hasDangerousItems": false,
+    "isVIP": false,
+    "controlPassed": 0
+  }
+]

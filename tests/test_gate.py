@@ -1,12 +1,13 @@
 from dataclasses import asdict
-from multiprocessing import Queue
+from queue_handler import Queue
 from gate import handle_passengers
 from generator import generate_passenger as _generate_passenger
 from cleanup import clear_files
 from utils import save_passengers, read_passengers
-from consts import  SECURITY_CHECKED_FILE, AIRPLANE_CAPACITY, STAIRS_FILE
+from consts import SECURITY_CHECKED_FILE, AIRPLANE_CAPACITY, STAIRS_FILE, GATE_QUEUE
 import threading
 import time
+
 
 def generate_passengers(count: int) -> list[dict]:
     passengers = []
@@ -17,7 +18,7 @@ def generate_passengers(count: int) -> list[dict]:
 
 
 def test_exact_passengers():
-    queue = Queue()
+    queue = Queue(GATE_QUEUE)
     passengers = generate_passengers(AIRPLANE_CAPACITY)
     save_passengers(SECURITY_CHECKED_FILE, passengers)
     queue.put(("airplane_ready", AIRPLANE_CAPACITY, 1000))
@@ -34,7 +35,6 @@ def test_exact_passengers():
 
     assert len(read_passengers(STAIRS_FILE)) == 0
     assert len(read_passengers(SECURITY_CHECKED_FILE)) == 0
-
 
 
 def test_not_enough_passengers():

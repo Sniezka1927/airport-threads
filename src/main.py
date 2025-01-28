@@ -1,5 +1,4 @@
-import time
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 from gate import process_passengers
 from dispatcher import Dispatcher
 from generator import generate_continuously
@@ -16,7 +15,9 @@ def main():
 
     dispatcher = Dispatcher()
     generator_process = Process(target=generate_continuously)
-    luggage_control_process = Process(target=check_luggage_continuously, args=(dispatcher.luggage_queue,))
+    luggage_control_process = Process(
+        target=check_luggage_continuously, args=(dispatcher.luggage_queue,)
+    )
     security_control_process = Process(target=check_security_continuously)
     dispatcher_process = Process(target=dispatcher.dispatcher_loop)
     gate_process = Process(target=process_passengers, args=(dispatcher.gate_queue,))

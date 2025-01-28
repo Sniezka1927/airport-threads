@@ -16,10 +16,11 @@ STAIRS_CAPACITY = 10
 
 # Konfiguracja samolotu
 AIRPLANE_CAPACITY = 20
-MIN_AIRPLANE_LUGGAGE_CAPACITY = 1000 # kg
-MAX_AIRPLANE_LUGGAGE_CAPACITY = 2000 # kg
+MIN_AIRPLANE_LUGGAGE_CAPACITY = 1000  # kg
+MAX_AIRPLANE_LUGGAGE_CAPACITY = 2000  # kg
 
 # -------------------- DO NOT EDIT BELOW THIS LINE --------------------
+
 
 # Konfiguracja generatora pasażerów
 PASSENGER_GENERATION_MIN_DELAY = 0.5  # seconds
@@ -31,7 +32,7 @@ MAX_PASSENGERS_PER_CHECKPOINT = 2
 MAX_CONTROL_PASSES = 3
 
 # Konfiguracja samolotów
-FLIGHT_DURATION = 30 # seconds
+FLIGHT_DURATION = 30  # seconds
 MAX_PASSENGERS_FOR_SHUTDOWN = 2000
 MIN_PASSENGERS_TO_BOARD = AIRPLANE_CAPACITY
 TOTAL_PASSENGER_CHECKS = 30
@@ -47,14 +48,19 @@ LOGS_FILE = f"../logs/logs_{floor(time())}.txt"
 LOGS_DIRECTORY = "../logs"
 STATS_DIRECTORY = "../stats"
 
+# Sćieżki do kolejek
+GATE_QUEUE = "./tmp/gate_queue"
+AIRPLANE_QUEUE = "./tmp/airplane_queue"
+LUGGAGE_QUEUE = "./tmp/luggage_queue"
+
 
 # Wiadmości wysyłane przez procesy
 class MESSAGES:
     # Generator
-    NEW_PASSENGER = 'Wygenerowano pasażera'
+    NEW_PASSENGER = "Wygenerowano pasażera"
     # Luggage
-    LUGGAGE_CHECK_BEGIN = 'Sprawdzam pasażera'
-    LUGGAGE_CHECK_OK = 'przeszedł kontrolę bagażową'
+    LUGGAGE_CHECK_BEGIN = "Sprawdzam pasażera"
+    LUGGAGE_CHECK_OK = "przeszedł kontrolę bagażową"
     LUGGAGE_CHECK_REJECT = "odrzucony - za ciężki bagaż"
     # Security
     SECURITY_CONTROL_BEGIN = "rozpoczyna kontrolę bezpieczeństwa"
@@ -74,11 +80,12 @@ class MESSAGES:
     FLIGHT_ENDED = "lot zakończony"
     AIRPLANE_RETURNED = "Powrócił na lotnisko"
 
+
 # Nazwy lokalizacji w procesach
 class LOCATIONS:
-    ENTRANCE = 'ENTRANCE'
-    LUGGAGE = 'LUGGAGE'
-    SECURITY = 'SECURITY'
-    GATE = 'GATE'
-    DISPATCHER = 'DISPATCHER'
-    AIRPLANE = 'AIRPLANE'
+    ENTRANCE = "ENTRANCE"
+    LUGGAGE = "LUGGAGE"
+    SECURITY = "SECURITY"
+    GATE = "GATE"
+    DISPATCHER = "DISPATCHER"
+    AIRPLANE = "AIRPLANE"
