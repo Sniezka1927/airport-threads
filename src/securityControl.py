@@ -230,13 +230,13 @@ def process_passengers(checkpoint: SecurityCheckpoint):
                     f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_REJECT}"
                 )
                 append_passenger(SECURITY_REJECTED_FILE, passenger)
+                terminate_process(int(passenger["id"]), "security")
             else:
                 log(
                     f"{timestamp()} - {LOCATIONS.SECURITY}: Stanowisko {station_id}: Pasażer ID={passenger['id']} "
                     f"(przepuścił: {passenger.get('controlPassed', 0)} osób) {MESSAGES.SECURITY_CONTROL_OK}"
                 )
                 append_passenger(SECURITY_CHECKED_FILE, passenger)
-                terminate_process(int(passenger["id"]))
 
 
 def check_security_continuously():

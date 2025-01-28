@@ -216,7 +216,7 @@ def validate_config():
         )
 
 
-def terminate_process(pid: int):
+def terminate_process(pid: int, source: str = ""):
     """Zabija proces o podanym PID"""
     try:
         # Zabij proces sygnałem SIGTERM
@@ -234,4 +234,4 @@ def terminate_process(pid: int):
             pass
 
     except ProcessLookupError:
-        print(f"Nie znalezionmu procesu o PID: {pid}")
+        print(f"Nie znalezionmu procesu o PID: {pid} z: {source}")

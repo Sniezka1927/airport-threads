@@ -52,7 +52,7 @@ def validate_passenger(passenger):
         log(
             f"{timestamp()} - {LOCATIONS.LUGGAGE}: Pasażer ID={passenger['id']} {MESSAGES.LUGGAGE_CHECK_REJECT}"
         )
-        terminate_process(int(passenger["id"]))
+        terminate_process(int(passenger["id"]), "luggage")
 
 
 def check_luggage_continuously(queue: Queue):

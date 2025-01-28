@@ -8,7 +8,7 @@ from consts import (
     MESSAGES,
     LOCATIONS,
 )
-from utils import read_passengers, save_passengers, timestamp, log
+from utils import read_passengers, save_passengers, timestamp, log, terminate_process
 
 
 def board_passengers(
@@ -18,17 +18,19 @@ def board_passengers(
     luggage_limit: int,
 ):
     """Proces obsługujący wejście pasażerów na pokład samolotu"""
-    boarded_passengers = 0
+    boarded_passengers = []
     total_luggage = 0
     remaining_luggage = 0
     total_checks = 0
     can_take_off = False
+
     try:
         # Główna pętla obsługi pasażerów
         while (
-            boarded_passengers < airplane_capacity
+            len(boarded_passengers) < airplane_capacity
             and total_checks <= TOTAL_PASSENGER_CHECKS
         ):
+
             total_checks += 1
             passengers_on_stairs = read_passengers(STAIRS_FILE)
 
@@ -41,7 +43,7 @@ def board_passengers(
                 log(
                     f"{timestamp()} - {LOCATIONS.AIRPLANE}: {len(passengers_on_stairs)} {MESSAGES.PASSENGERS_BOARDED}"
                 )
-                boarded_passengers += len(passengers_on_stairs)
+                boarded_passengers += passengers_on_stairs
                 total_luggage += current_luggage
                 save_passengers(STAIRS_FILE, [])
                 time.sleep(2)
@@ -74,6 +76,8 @@ def board_passengers(
             from_airplane_queue.put("fly_completed")
             log(f"{timestamp()} - {LOCATIONS.AIRPLANE}: {MESSAGES.AIRPLANE_RETURNED}")
             can_take_off = False
+            for passenger in boarded_passengers:
+                terminate_process(int(passenger["id"]), "airplane")
             sys.exit()
     except KeyboardInterrupt:
         print(f"{timestamp()} - {LOCATIONS.AIRPLANE}: kończenie procesu")
