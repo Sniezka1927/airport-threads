@@ -19,7 +19,7 @@ class Queue:
             handle_system_error("initialization", queue_path, e)
             raise
 
-    def put(self, message, timeout=None):
+    def put(self, message, timeout=5):
         """
         Dodaje wiadomosc do kolejki. Akceptuje string lub tuple.
         Jesli message jest tuple, konwertuje je na string z separatorem ';'
@@ -93,52 +93,7 @@ class Queue:
                     if time.time() - start_time > timeout:
                         return False
 
-    def empty(self, timeout=None):
-        """
-        Sprawdzenie czy kolejka jest pusta
-        """
-        start_time = time.time()
-        lock_fd = None
-
-        while True:
-            try:
-                lock_fd = os.open(
-                    f"{self.queue_path}.lock",
-                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-                    0o600,
-                )
-
-                try:
-                    try:
-                        with open(self.queue_path, "r") as f:
-                            first_line = f.readline()
-                        return len(first_line.strip()) == 0
-                    except OSError as e:
-                        if e.errno == errno.ENOENT:
-                            return True
-                        handle_system_error("reading", self.queue_path, e)
-                        raise
-
-                finally:
-                    if lock_fd is not None:
-                        try:
-                            os.close(lock_fd)
-                            os.unlink(f"{self.queue_path}.lock")
-                        except OSError as e:
-                            handle_system_error("cleanup", f"{self.queue_path}.lock", e)
-
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    handle_system_error("lock creation", f"{self.queue_path}.lock", e)
-                    raise
-
-                time.sleep(0.1)
-
-                if timeout is not None:
-                    if time.time() - start_time > timeout:
-                        return None
-
-    def get(self, timeout=None):
+    def get(self, timeout=5):
         """
         Odbiór wiadomości z kolejki.
         Jeśli wiadomość zawiera separator ';', zwraca tuple.

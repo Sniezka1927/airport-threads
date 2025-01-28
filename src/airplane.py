@@ -1,7 +1,6 @@
 import sys
 import time
-from multiprocessing import Value
-from queue_handler import Queue
+from queue_handler import Queue, Empty
 from consts import (
     STAIRS_FILE,
     FLIGHT_DURATION,
@@ -58,10 +57,12 @@ def board_passengers(
         # Wyslij sygnał o zakończeniu wejścia pasażerów
         from_airplane_queue.put("boarding_complete")
 
-        if not to_airplane_queue.empty():
+        try:
             signal = to_airplane_queue.get()
             if signal == "takeoff_allowed":
                 can_take_off = True
+        except Empty:
+            pass
 
         passengers_on_stairs = read_passengers(STAIRS_FILE)
 

@@ -1,6 +1,9 @@
 import os
 import fcntl
+import signal
 import errno
+import time
+import subprocess
 from json import JSONDecodeError
 from typing import List, Dict
 import json
@@ -212,3 +215,24 @@ def validate_config():
         raise ValueError(
             "MAX_AIRPLANE_LUGGAGE_CAPACITY musi bć większe bądź róœne MIN_AIRPLANE_LUGGAGE_CAPACITY"
         )
+
+
+def terminate_process(pid: int):
+    """Zabija proces o podanym PID"""
+    try:
+        # Zabij proces sygnałem SIGTERM
+        os.kill(pid, signal.SIGTERM)
+
+        time.sleep(0.5)
+
+        try:
+            # Check czy istnieje proces o podanym PID
+            os.kill(pid, 0)
+            # Jeśli dalej istnieje proces o podanym PID, zabij go
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            # Process został zakończony
+            pass
+
+    except ProcessLookupError:
+        print(f"Nie znalezionmu procesu o PID: {pid}")

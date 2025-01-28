@@ -1,6 +1,8 @@
 import time
+import os
+import signal
 from multiprocessing import Process
-from queue_handler import Queue
+from queue_handler import Queue, Empty
 from consts import (
     AIRPORT_LUGGAGE_LIMIT,
     ENTRANCE_FILE,
@@ -16,6 +18,7 @@ from utils import (
     timestamp,
     append_passenger,
     log,
+    terminate_process,
 )
 
 
@@ -49,6 +52,7 @@ def validate_passenger(passenger):
         log(
             f"{timestamp()} - {LOCATIONS.LUGGAGE}: Pasażer ID={passenger['id']} {MESSAGES.LUGGAGE_CHECK_REJECT}"
         )
+        terminate_process(int(passenger["id"]))
 
 
 def check_luggage_continuously(queue: Queue):
@@ -56,10 +60,12 @@ def check_luggage_continuously(queue: Queue):
     w przypadku otrzymania informacjii o zamknięciu lotniska kontorla zatrzymuje się"""
     ensure_files_exists([ENTRANCE_FILE, LUGGAGE_CHECKED_FILE, LUGGAGE_REJECTED_FILE])
     while True:
-        if not queue.empty():
+        try:
             signal = queue.get()
             if signal == "close_airport":
                 return
+        except Empty:
+            pass
 
         passenger = get_first_passenger()
 

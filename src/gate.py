@@ -45,10 +45,12 @@ def handle_passengers(queue: Queue):
     try:
         signal, airplane_capacity, luggage_limit = queue.get()
 
-        if not queue.empty():
+        try:
             signal = queue.get()
             if signal == "close_airport":
                 return
+        except Empty:
+            pass
 
         # Jeśli otrzymano sygnał o gotowości samolotu
         if signal == "airplane_ready":

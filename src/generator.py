@@ -62,18 +62,18 @@ def cleanup_children():
     child_pids.clear()
 
 
-def child_signal_handler(signum, frame):
-    """Handler dla procesów potomnych"""
-    os.write(1, f"Proces pasażera {os.getpid()} kończy działanie\n".encode())
-    os._exit(0)
-
-
 def parent_signal_handler(signum, frame):
     """Handler dla procesu głównego"""
     os.write(1, b"\nZatrzymywanie generatora pasazerow...\n")
     cleanup_children()
     os.write(1, b"Generator zatrzymany.\n")
     os._exit(0)
+
+
+def child_signal_handler(signum, frame):
+    """Handler dla procesów potomnych"""
+    # os.write(1, f"Proces pasażera {os.getpid()} kończy działanie\n".encode())
+    os.kill(os.getpid(), signal.SIGKILL)  # Wymuszamy natychmiastowe zakończenie
 
 
 def generate_continuously():
@@ -84,26 +84,39 @@ def generate_continuously():
 
     while True:
         pid = os.fork()
-
         if pid == 0:
             # Proces potomny
-            signal.signal(signal.SIGINT, child_signal_handler)
-            signal.signal(signal.SIGTERM, child_signal_handler)
+            try:
+                signal.signal(signal.SIGINT, child_signal_handler)
+                signal.signal(signal.SIGTERM, child_signal_handler)
 
-            passenger = generate_passenger(os.getpid())
-            handle_passenger(passenger)
+                passenger = generate_passenger(os.getpid())
+                handle_passenger(passenger)
 
-            while True:
-                time.sleep(1)
+                # Czekamy na sygnał zakończenia
+                signal.pause()
+
+            except Exception as e:
+                print(f"Błąd w procesie potomnym: {e}")
+                os._exit(1)
         else:
-            # Proces rodzica
+            # Proces główny
             child_pids.add(pid)
+            # Czyścimy zakończone procesy potomne
+            try:
+                while True:
+                    wpid, status = os.waitpid(-1, os.WNOHANG)
+                    if wpid == 0:
+                        break
+                    child_pids.discard(wpid)
+            except ChildProcessError:
+                pass
 
-        time.sleep(
-            random.uniform(
-                PASSENGER_GENERATION_MIN_DELAY, PASSENGER_GENERATION_MAX_DELAY
+            time.sleep(
+                random.uniform(
+                    PASSENGER_GENERATION_MIN_DELAY, PASSENGER_GENERATION_MAX_DELAY
+                )
             )
-        )
 
 
 if __name__ == "__main__":

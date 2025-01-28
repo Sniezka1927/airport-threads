@@ -2,7 +2,7 @@ from time import time
 from math import floor
 
 # Konfiguracja lotniska
-AIRPORT_LUGGAGE_LIMIT = 12.5  # kg
+AIRPORT_LUGGAGE_LIMIT = 1  # kg
 AIRPORT_AIRPLANES_COUNT = 5
 
 # Konfiguracja generatora pasażerów
@@ -12,10 +12,10 @@ MIN_LUGGAGE_WEIGHT = 1.0  # kg
 MAX_LUGGAGE_WEIGHT = 15.0  # kg
 
 # Konfiguracja schodów
-STAIRS_CAPACITY = 10
+STAIRS_CAPACITY = 2
 
 # Konfiguracja samolotu
-AIRPLANE_CAPACITY = 20
+AIRPLANE_CAPACITY = 4
 MIN_AIRPLANE_LUGGAGE_CAPACITY = 1000  # kg
 MAX_AIRPLANE_LUGGAGE_CAPACITY = 2000  # kg
 
@@ -32,7 +32,7 @@ MAX_PASSENGERS_PER_CHECKPOINT = 2
 MAX_CONTROL_PASSES = 3
 
 # Konfiguracja samolotów
-FLIGHT_DURATION = 30  # seconds
+FLIGHT_DURATION = 5  # seconds
 MAX_PASSENGERS_FOR_SHUTDOWN = 2000
 MIN_PASSENGERS_TO_BOARD = AIRPLANE_CAPACITY
 TOTAL_PASSENGER_CHECKS = 30
