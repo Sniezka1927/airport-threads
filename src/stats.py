@@ -25,8 +25,8 @@ class Statistics:
         self.was_shutdown = False
 
     def get_location(self, log: str):
-        start = log.find('-') + 1  # Position after the first '-'
-        end = log.find(':', start)  # First ':' after the '-'
+        start = log.find('-') + 1  # Pozycja po 1. '-'
+        end = log.find(':', start)  # Pierwsze wystąpienie ':' po '-'
         return log[start:end].strip()
 
     def set_duration(self):
