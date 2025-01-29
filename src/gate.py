@@ -55,15 +55,22 @@ def handle_passengers(queue: Queue):
         # Jeśli otrzymano sygnał o gotowości samolotu
         if signal == "airplane_ready":
             log(f"{timestamp()} - {LOCATIONS.GATE}: {MESSAGES.RECEIVED_AIRPLANE_READY}")
-            passengers = read_passengers(SECURITY_CHECKED_FILE)
             boarded_passengers = 0
             total_luggage = 0
 
             # Główna pętla obsługi pasażerów
-            while boarded_passengers < int(airplane_capacity) and passengers:
+            while boarded_passengers < int(airplane_capacity):
+                # Odczytaj aktualną listę pasażerów przed każdą iteracją
+                passengers = read_passengers(SECURITY_CHECKED_FILE)
+                if not passengers:
+                    time.sleep(1)  # Czekaj na nowych pasażerów
+                    continue
+
                 # Czekaj na opuszczenie schodów przez pasażerów
                 while len(read_passengers(STAIRS_FILE)) > 0:
                     time.sleep(0.5)
+                    # Ponownie sprawdź pasażerów z kontroli bezpieczeństwa
+                    passengers = read_passengers(SECURITY_CHECKED_FILE)
 
                 remaining_capacity = min(
                     STAIRS_CAPACITY, int(airplane_capacity) - boarded_passengers
@@ -76,7 +83,8 @@ def handle_passengers(queue: Queue):
                 )
 
                 if not batch:
-                    break
+                    time.sleep(1)  # Czekaj na nowych pasażerów jeśli nie można wybrać grupy
+                    continue
 
                 batch_luggage = sum(
                     passenger.get("luggageWeight", 0) for passenger in batch
@@ -86,22 +94,19 @@ def handle_passengers(queue: Queue):
                     f"{timestamp()} - {LOCATIONS.GATE}: wchodzi {len(batch)} (Waga bagaży: {batch_luggage}kg) {MESSAGES.MOVING_PASSENGERS}"
                 )
 
-                # Usuń pasażerów z listy oczekujących
-                new_passengers = []
-                for passenger in passengers:
-                    if passenger not in batch:
-                        new_passengers.append(passenger)
-                passengers = new_passengers
-
+                # Aktualizuj listę pasażerów w pliku security checked
+                current_security_checked = read_passengers(SECURITY_CHECKED_FILE)
+                new_security_checked = [p for p in current_security_checked if p not in batch]
+                
+                # Zapisz zaktualizowane listy
                 save_passengers(STAIRS_FILE, batch)
-                save_passengers(SECURITY_CHECKED_FILE, passengers)
+                save_passengers(SECURITY_CHECKED_FILE, new_security_checked)
 
                 boarded_passengers += len(batch)
                 total_luggage += batch_luggage
                 time.sleep(1)  # Czas na przejście grupy pasażerów
     except Empty:
         pass
-
 
 def process_passengers(queue: Queue):
     """Główna funkcja obsługująca pasażerów na bramce"""

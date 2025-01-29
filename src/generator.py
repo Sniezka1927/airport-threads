@@ -3,7 +3,7 @@ import random
 import time
 import signal
 from dataclasses import dataclass, asdict
-from utils import timestamp, append_passenger, log, ensure_files_exists
+from utils import timestamp, append_passenger, log, ensure_files_exists, read_passengers
 from consts import (
     ENTRANCE_FILE,
     PASSENGER_GENERATION_MIN_DELAY,

@@ -4,7 +4,7 @@ from math import floor
 # Konfiguracja lotniska
 AIRPORT_LUGGAGE_LIMIT = 14.0  # kg
 AIRPORT_AIRPLANES_COUNT = 5
-MAX_PASSENGER_PROCESSES = 20
+MAX_PASSENGER_PROCESSES = 50
 
 # Konfiguracja generatora pasażerów
 DANGEROUS_ITEMS_PROBABILITY = 0.01  # 1% chance
