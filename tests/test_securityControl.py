@@ -36,6 +36,7 @@ def test_single_passenger():
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
     assert len(passed_passengers) == 1
     assert len(rejected_passengers) == 0
+    print("\n")
 
 
 def test_single_passenger_with_dangerous_items():
@@ -48,6 +49,7 @@ def test_single_passenger_with_dangerous_items():
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
     assert len(passed_passengers) == 0
     assert len(rejected_passengers) == 1
+    print("\n")
 
 
 def test_multiple_passengers():
@@ -66,6 +68,7 @@ def test_multiple_passengers():
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     assert len(passed_passengers) == 6
     assert len(rejected_passengers) == 0
+    print("\n")
 
 
 def test_gender_control():
@@ -81,10 +84,11 @@ def test_gender_control():
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
     assert len(passed_passengers) == 5
     assert len(rejected_passengers) == 0
-
+    print("\n")
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     assert len(passed_passengers) == 6
+    print("\n")
 
 
 def test_passing_passengers():
@@ -97,7 +101,7 @@ def test_passing_passengers():
     save_passengers(get_file_name(0), passengers)
 
     process_passengers(checkpoint)
-
+    print("\n")
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
     assert len(passed_passengers) == 2
@@ -113,6 +117,7 @@ def test_passing_passengers():
     assert len(passed_passengers) == 3
     assert passed_passengers[-1]["gender"] == "F"
     assert passed_passengers[-1]["controlPassed"] == 1
+    print("\n")
 
 
 def test_vip_pass():
@@ -135,17 +140,23 @@ def test_vip_pass():
     assert len(remaining_passengers) == 2
     assert remaining_passengers[0]["gender"] == "M"
     assert remaining_passengers[1]["gender"] == "M"
-
+    print("\n")
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     assert len(passed_passengers) == 3
+    print("\n")
 
 
 if __name__ == "__main__":
     test_single_passenger()
+    print("OK \n")
     test_single_passenger_with_dangerous_items()
+    print("OK \n")
     test_multiple_passengers()
+    print("OK \n")
     test_gender_control()
+    print("OK \n")
     test_passing_passengers()
+    print("OK \n")
     test_vip_pass()
     print("OK")

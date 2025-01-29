@@ -52,6 +52,16 @@ def handle_system_error(operation: str, filename: str, error: OSError):
         sys.stderr.write("Brak dostępu do zasobów\n")
     elif error_code == errno.EEXIST:
         sys.stderr.write("Plik już istnieje\n")
+    elif error_code == errno.EMFILE:
+        sys.stderr.write("Za dużo otwartych plików\n")
+    elif error_code == errno.EBADF:
+        sys.stderr.write("Nieprawidłowy deskryptor pliku\n")
+    elif error_code == errno.EIO:
+        sys.stderr.write("Błąd wejścia/wyjścia\n")
+    elif error_code == errno.EBUSY:
+        sys.stderr.write("Zasób jest zajęty\n")
+    elif error_code == errno.EINTR:
+        sys.stderr.write("Przerwana operacja systemowa\n")
 
 
 def ensure_files_exists(filenames: List[str]):
@@ -236,6 +246,10 @@ def validate_config():
     if not (MIN_FLIGHT_DURATION >= 0 and MIN_FLIGHT_DURATION <= MAX_FLIGHT_DURATION):
         raise ValueError(
             "MIN_FLIGHT_DURATION musi być większe bądź równe 0 i mniejsze bądź równe MAX_FLIGHT_DURATION"
+        )
+    if not (MAX_PASSENGER_PROCESSES >= AIRPLANE_CAPACITY):
+        raise ValueError(
+            "MAX_PASSENGER_PROCESSES musi być większe bądź równe AIRPLANE_CAPACITY"
         )
 
 

@@ -12,11 +12,27 @@ class Queue:
 
         try:
             if not os.path.exists(queue_path):
-                with open(queue_path, "a") as f:
-                    pass
-                os.chmod(queue_path, 0o600)
+                try:
+                    with open(queue_path, "a") as f:
+                        pass
+                    os.chmod(queue_path, 0o600)
+                except OSError as e:
+                    if e.errno == errno.ENOSPC:  # Brak miejsca na dysku
+                        handle_system_error(
+                            "initialization - no space left", queue_path, e
+                        )
+                    elif e.errno == errno.EMFILE:  # Za dużo otwartych plików
+                        handle_system_error(
+                            "initialization - too many open files", queue_path, e
+                        )
+                    else:
+                        handle_system_error("initialization", queue_path, e)
+                    raise
         except OSError as e:
-            handle_system_error("initialization", queue_path, e)
+            if e.errno == errno.EACCES:  # Brak uprawnień
+                handle_system_error("initialization - permission denied", queue_path, e)
+            else:
+                handle_system_error("initialization", queue_path, e)
             raise
 
     def put(self, message, timeout=5):
@@ -47,7 +63,7 @@ class Queue:
                         with open(self.queue_path, "r") as f:
                             messages = f.readlines()
                     except OSError as e:
-                        if e.errno != errno.ENOENT:  # Ignore if file doesn't exist
+                        if e.errno != errno.ENOENT:  # Brak pliku
                             handle_system_error("reading", self.queue_path, e)
                             raise
 
@@ -116,6 +132,11 @@ class Queue:
                         with open(self.queue_path, "r") as f:
                             messages = f.readlines()
                     except OSError as e:
+                        if e.errno == errno.EIO:  # Obsługi błędu I/O
+                            handle_system_error(
+                                "reading due to I/O error", self.queue_path, e
+                            )
+                            raise
                         if e.errno != errno.ENOENT:
                             handle_system_error("reading", self.queue_path, e)
                             raise

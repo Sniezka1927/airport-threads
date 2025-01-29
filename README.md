@@ -182,7 +182,7 @@ python3 stats.py
 
 ### 8.4 Testowanie aplikacjii
 
-Przed każdym uruchomieniem każdego testu należy się upewnić, że wszystkie pliki w `./data/*.json` nie zawierają informacji o pasażerach.
+Przed każdym uruchomieniem każdego testu należy się upewnić, że wszystkie pliki w `./data/*.txt` oraz `./tests/tmp/*` nie zawierają informacji o pasażerach.
 
 ```bash
 # Z katalogu tests

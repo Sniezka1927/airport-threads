@@ -1,8 +1,0 @@
-624037;M;14.02;False;False;0
-624241;M;14.73;False;False;0
-624732;F;14.37;False;False;0
-625192;M;14.74;False;False;0
-625851;M;14.81;False;False;0
-625887;F;14.26;True;False;0
-627972;F;14.56;False;False;0
-629351;F;14.04;False;False;0
