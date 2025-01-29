@@ -1,21 +1,21 @@
-# Raport z Projektu - System Obsługi Lotniska
+# Raport z Projektu - Samolot z bagażami
 
 ## 1. Założenia projektowe
 
 Projekt implementuje system symulujący działanie lotniska z następującymi głównymi komponentami:
 
 - [Generator pasażerów](https://github.com/Sniezka1927/airport-threads/blob/master/src/generator.py#L88-L123):
-	Proces, który w nieskończonej pętli generuje nowych pasażerów, nie przekraczając ustawionego limitu procesów określonego przez użytkownika.
+  Proces, który w nieskończonej pętli generuje nowych pasażerów, nie przekraczając ustawionego limitu procesów określonego przez użytkownika.
 - [Kontrola biletowo-bagażowa](https://github.com/Sniezka1927/airport-threads/blob/master/src/luggageControl.py#L61-L80):
-Pobiera wygenerowanych pasażerów i sprawdza ich bilety oraz bagaż pod kątem zgodności z kryteriami wagowymi lotniska. Po pozytywnej weryfikacji przydziela pasażerów do odpowiednich stanowisk kontroli bezpieczeństwa, wykorzystując algorytm Round Robin.
+  Pobiera wygenerowanych pasażerów i sprawdza ich bilety oraz bagaż pod kątem zgodności z kryteriami wagowymi lotniska. Po pozytywnej weryfikacji przydziela pasażerów do odpowiednich stanowisk kontroli bezpieczeństwa, wykorzystując algorytm Round Robin.
 - [Kontrola bezpieczeństwa](https://github.com/Sniezka1927/airport-threads/blob/master/src/securityControl.py#L77-L138):
-	Sprawdza pasażerów pod kątem posiadania niebezpiecznych przedmiotów. Po pozytywnej kontroli kieruje ich do hali odlotów. Kontrola odbywa się przy maksymalnie dwóch osobach na stanowisko, przy zachowaniu zasady tej samej płci. Pasażerowie mogą przepuścić maksymalnie trzy osoby w kolejce. System obsługuje także pasażerów VIP, którzy mają priorytet i mogą ominąć kolejkę.
+  Sprawdza pasażerów pod kątem posiadania niebezpiecznych przedmiotów. Po pozytywnej kontroli kieruje ich do hali odlotów. Kontrola odbywa się przy maksymalnie dwóch osobach na stanowisko, przy zachowaniu zasady tej samej płci. Pasażerowie mogą przepuścić maksymalnie trzy osoby w kolejce. System obsługuje także pasażerów VIP, którzy mają priorytet i mogą ominąć kolejkę.
 - [System zarządzania bramkami (gates)](https://github.com/Sniezka1927/airport-threads/blob/master/src/dispatcher.py#L78-L126):
-Po otrzymaniu sygnału o gotowości samolotu kieruje pasażerów do odpowiedniej bramki i organizuje boarding.
+  Po otrzymaniu sygnału o gotowości samolotu kieruje pasażerów do odpowiedniej bramki i organizuje boarding.
 - [Dyspozytor lotów](https://github.com/Sniezka1927/airport-threads/blob/master/src/dispatcher.py#L78-L126):
-	Komunikuje się z bramkami oraz samolotem. Po sprawdzeniu odpowiedniej liczby pasażerów wydaje zgodę na rozpoczęcie boardingu, a następnie na start samolotu. W przypadku nadmiernego zatłoczenia lotniska może natychmiast zatrzymać pracę lotniska.
+  Komunikuje się z bramkami oraz samolotem. Po sprawdzeniu odpowiedniej liczby pasażerów wydaje zgodę na rozpoczęcie boardingu, a następnie na start samolotu. W przypadku nadmiernego zatłoczenia lotniska może natychmiast zatrzymać pracę lotniska.
 - [Proces obsługi samolotu](https://github.com/Sniezka1927/airport-threads/blob/master/src/airplane.py#L16-L88):
-	Po zakończeniu boardingu i otrzymaniu zgody na start rozpoczyna lot. Po określonym czasie wraca na lotnisko, kończąc swój cykl operacyjny.
+  Po zakończeniu boardingu i otrzymaniu zgody na start rozpoczyna lot. Po określonym czasie wraca na lotnisko, kończąc swój cykl operacyjny.
 
 ### 1.1 Główne wymagania funkcjonalne:
 
@@ -26,7 +26,6 @@ Po otrzymaniu sygnału o gotowości samolotu kieruje pasażerów do odpowiedniej
 - [System obsługi VIP](https://github.com/Sniezka1927/airport-threads/blob/master/src/securityControl.py#L77-L116)
 - [Zarządzanie schodami pasażerskimi o ograniczonej pojemności](https://github.com/Sniezka1927/airport-threads/blob/master/src/gate.py#L63-L101)
 - [Koordynacja oraz zarządzanie flotą samolotów przez dyspozytora](https://github.com/Sniezka1927/airport-threads/blob/master/src/dispatcher.py#L78-L126)
-
 
 ## 2. Implementacja wymagań obowiązkowych
 
@@ -129,8 +128,6 @@ Projekt zawiera kompleksowy zestaw testów:
   - [TEST_2](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_gate.py#L43-L61): Sprawdzenie odlotu samolotu przy braku pasażerów do zapełnienia samolotu. W hali odlotów oczekuje mniej pasażerów niż miejsc w samolocie. Pasażerowie wsiadają do samolotu przy wykorzystaniu schodów maksymalizując liczbę osób przy każdym użyciu schodów
   - [TEST_3](https://github.com/Sniezka1927/airport-threads/blob/master/tests/test_gate.py#L64-L81): Sprawdzenie odlotu samolotu przy nadmiarze pasażerów oczekujących na odlot. W hali odlotów oczekuje więcej pasażerów niż jest wolnych miejsc w samolocie Pasażerowie wsiadają do samolotu przy wykorzystaniu schodów nie przekraczając limitu miejsc w samolocie
 
-
-
 ### 5.2 Zakres testów
 
 #### Testy jednostkowe
@@ -139,8 +136,6 @@ Każdy moduł ma dedykowany zestaw testów sprawdzających:
 
 - Poprawność walidacji danych
 - Obsługę skrajnych przypadków
-
-
 
 ## 6. Elementy wyróżniające projekt
 
