@@ -38,6 +38,7 @@ def test_exact_passengers():
     assert len(read_passengers(STAIRS_FILE)) == 0
     assert len(read_passengers(SECURITY_CHECKED_FILE)) == 0
     print("\n")
+    time.sleep(10)
 
 
 def test_not_enough_passengers():
@@ -59,6 +60,7 @@ def test_not_enough_passengers():
     assert len(read_passengers(STAIRS_FILE)) == 0
     assert len(read_passengers(SECURITY_CHECKED_FILE)) == 0
     print("\n")
+    time.sleep(10)
 
 
 def test_too_much_passengers():
