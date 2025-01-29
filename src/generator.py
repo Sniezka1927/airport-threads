@@ -92,7 +92,6 @@ def generate_continuously():
     ensure_files_exists([ENTRANCE_FILE])
 
     while True:
-        print("Stworzonych pasażerów:", len(child_pids))
         if len(child_pids) < MAX_PASSENGER_PROCESSES:
             pid = os.fork()
             if pid == 0:
