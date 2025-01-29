@@ -2,20 +2,25 @@ from dataclasses import asdict
 from generator import generate_passenger as _generate_passenger
 from cleanup import clear_files
 from securityControl import SecurityCheckpoint, process_passengers
+from luggageControl import get_file_name
 from utils import save_passengers, read_passengers
-from consts import  LUGGAGE_CHECKED_FILE, SECURITY_CHECKED_FILE, SECURITY_REJECTED_FILE
+from consts import LUGGAGE_CHECKED_FILE, SECURITY_CHECKED_FILE, SECURITY_REJECTED_FILE
+import random
 
 
-def generate_passengers(count: int, male_count: int = 0, with_items: bool = False, is_vip: bool = False) -> list[dict]:
+def generate_passengers(
+    count: int, male_count: int = 0, with_items: bool = False, is_vip: bool = False
+) -> list[dict]:
     passengers = []
     for i in range(count):
-        passenger = _generate_passenger()
+        rnd_pid = random.randint(100000000, 999999999)
+        passenger = _generate_passenger(rnd_pid)
         passenger.hasDangerousItems = with_items
         passenger.isVIP = is_vip
         if i < male_count:
-            passenger.gender = 'M'
+            passenger.gender = "M"
         else:
-            passenger.gender = 'F'
+            passenger.gender = "F"
 
         passengers.append(asdict(passenger))
     return passengers
@@ -23,100 +28,135 @@ def generate_passengers(count: int, male_count: int = 0, with_items: bool = Fals
 
 def test_single_passenger():
     clear_files(False)
-    passengers = generate_passengers(1, 0,False)
+    passengers = generate_passengers(1, 0, False)
     checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
+    save_passengers(get_file_name(0), passengers)
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
     assert len(passed_passengers) == 1
     assert len(rejected_passengers) == 0
+    print("\n")
+
 
 def test_single_passenger_with_dangerous_items():
-    passengers = generate_passengers(1, 0,True)
+    clear_files(False)
+    passengers = generate_passengers(1, 0, True)
     checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
+    save_passengers(get_file_name(0), passengers)
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
-    assert len(passed_passengers) == 1
+    assert len(passed_passengers) == 0
     assert len(rejected_passengers) == 1
+    print("\n")
+
 
 def test_multiple_passengers():
-    passengers = generate_passengers(6, 6)
+    clear_files(False)
     checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
+
+    for station in checkpoint.stations:
+        passengers = generate_passengers(2, 2)
+        save_passengers(station.file_name, passengers)
+
     process_passengers(checkpoint)
+
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
-    assert len(passed_passengers) == 7
-    assert len(rejected_passengers) == 1
+
+    passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
+    assert len(passed_passengers) == 6
+    assert len(rejected_passengers) == 0
+    print("\n")
+
 
 def test_gender_control():
-    passengers = generate_passengers(6, 5)
+    clear_files(False)
     checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
-    process_passengers(checkpoint)
-    passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
-    rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
-    assert len(passed_passengers) == 12
-    assert len(rejected_passengers) == 1
+
+    for station in checkpoint.stations:
+        passengers = generate_passengers(2, 2 if station.station_id != 2 else 1)
+        save_passengers(station.file_name, passengers)
 
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
-    assert len(passed_passengers) == 13
+    rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
+    assert len(passed_passengers) == 5
+    assert len(rejected_passengers) == 0
+    print("\n")
+    process_passengers(checkpoint)
+    passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
+    assert len(passed_passengers) == 6
+    print("\n")
 
 
 def test_passing_passengers():
-    initial_passengers = generate_passengers(6, 5)
+    clear_files(False)
+    checkpoint = SecurityCheckpoint()
+
+    initial_passengers = generate_passengers(2, 1)
     additional_male = generate_passengers(1, 1)
     passengers = initial_passengers + additional_male
-    checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
+    save_passengers(get_file_name(0), passengers)
+
     process_passengers(checkpoint)
+    print("\n")
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
-    assert len(passed_passengers) == 19
-    assert len(rejected_passengers) == 1
+    assert len(passed_passengers) == 2
+    assert len(rejected_passengers) == 0
 
-    remaining_passengers = read_passengers(LUGGAGE_CHECKED_FILE)
+    remaining_passengers = read_passengers(get_file_name(0))
     assert len(remaining_passengers) == 1
-    assert remaining_passengers[0]['gender'] == 'F'
+    assert remaining_passengers[0]["gender"] == "F"
+    assert remaining_passengers[0]["controlPassed"] == 1
 
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
-    assert len(passed_passengers) == 20
-    assert passed_passengers[-1]['gender'] == 'F'
-    assert passed_passengers[-1]['controlPassed'] == 1
+    assert len(passed_passengers) == 3
+    assert passed_passengers[-1]["gender"] == "F"
+    assert passed_passengers[-1]["controlPassed"] == 1
+    print("\n")
+
 
 def test_vip_pass():
-    initial_passengers = generate_passengers(6, 6)
+    clear_files(False)
+
+    initial_passengers = generate_passengers(2, 2)
     additional_female_vip = generate_passengers(1, 0, False, True)
     passengers = initial_passengers + additional_female_vip
     checkpoint = SecurityCheckpoint()
-    save_passengers(LUGGAGE_CHECKED_FILE, passengers)
+    save_passengers(get_file_name(0), passengers)
+
     process_passengers(checkpoint)
+
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
     rejected_passengers = read_passengers(SECURITY_REJECTED_FILE)
-    assert len(passed_passengers) == 25
-    assert len(rejected_passengers) == 1
+    assert len(passed_passengers) == 1
+    assert len(rejected_passengers) == 0
 
-    remaining_passengers = read_passengers(LUGGAGE_CHECKED_FILE)
+    remaining_passengers = read_passengers(get_file_name(0))
     assert len(remaining_passengers) == 2
-    assert remaining_passengers[0]['gender'] == 'M'
-    assert remaining_passengers[1]['gender'] == 'M'
-
+    assert remaining_passengers[0]["gender"] == "M"
+    assert remaining_passengers[1]["gender"] == "M"
+    print("\n")
     process_passengers(checkpoint)
     passed_passengers = read_passengers(SECURITY_CHECKED_FILE)
-    assert len(passed_passengers) == 27
+    assert len(passed_passengers) == 3
+    print("\n")
+
 
 if __name__ == "__main__":
-    clear_files(False)
     test_single_passenger()
+    print("OK \n")
     test_single_passenger_with_dangerous_items()
+    print("OK \n")
     test_multiple_passengers()
+    print("OK \n")
     test_gender_control()
+    print("OK \n")
     test_passing_passengers()
+    print("OK \n")
     test_vip_pass()
     print("OK")
-    clear_files(False)

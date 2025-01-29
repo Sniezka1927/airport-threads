@@ -1,6 +1,6 @@
 import time
 import os
-from multiprocessing import Process, Queue, Value
+from queue_handler import Queue, Empty
 from consts import (
     SECURITY_CHECKED_FILE,
     AIRPORT_AIRPLANES_COUNT,
@@ -10,125 +10,126 @@ from consts import (
     MAX_AIRPLANE_LUGGAGE_CAPACITY,
     MAX_PASSENGERS_FOR_SHUTDOWN,
     MESSAGES,
-    LOCATIONS
+    LOCATIONS,
+    TO_AIRPLANE_QUEUE,
+    TO_GATE_QUEUE,
+    TO_LUGGAGE_QUEUE,
+    FROM_AIRPLANE_QUEUE,
+    FROM_GATE_QUEUE,
+    FROM_LUGGAGE_QUEUE,
 )
-from gate import process_passengers
 from airplane import board_passengers
-from utils import read_passengers, timestamp, log
-from random import  randint
+from utils import read_passengers, timestamp, log, terminate_process
+from random import randint
+
 
 class Dispatcher:
     def __init__(self):
-        self.gate_queue = Queue()
-        self.airplane_queue = Queue()
-        self.luggage_queue = Queue()
-
-        # Ustawienie minimalnych praw dostępu dla kolejek, prawa tylko dla właściciela
-        for queue in [self.gate_queue, self.airplane_queue, self.luggage_queue]:
-            fd = queue._reader.fileno()
-            os.fchmod(fd, 0o600)
-            fd = queue._writer.fileno()
-            os.fchmod(fd, 0o600)
-
-        self.active_processes = []
+        self.to_gate_queue = Queue(TO_GATE_QUEUE)
+        self.from_gate_queue = Queue(FROM_GATE_QUEUE)
+        self.to_airplane_queue = Queue(TO_AIRPLANE_QUEUE)
+        self.from_airplane_queue = Queue(FROM_AIRPLANE_QUEUE)
+        self.to_luggage_queue = Queue(TO_LUGGAGE_QUEUE)
+        self.from_luggage_queue = Queue(FROM_LUGGAGE_QUEUE)
+        self.airplane_pids = set()  # Zbiór aktywnych PID-ów samolotów
         self.running = True
-        # Pamięci współdzielonej dla dostępnych samolotów
-        self.available_airplanes = Value('i', AIRPORT_AIRPLANES_COUNT)
+        self.available_airplanes = AIRPORT_AIRPLANES_COUNT
+        self.is_boarding = False
+
+    def create_airplane_process(self, airplane_capacity, luggage_limit):
+        """Tworzy nowy proces samolotu używając os.fork()"""
+        pid = os.fork()
+
+        if pid == 0:
+            # Proces dziecka (samolot)
+            try:
+                board_passengers(
+                    self.from_airplane_queue,
+                    self.to_airplane_queue,
+                    airplane_capacity,
+                    luggage_limit,
+                )
+                os._exit(0)
+            except KeyboardInterrupt:
+                os._exit(0)
+        else:
+            # Proces rodzica (dispatcher)
+            self.airplane_pids.add(pid)
+            log(
+                f"{timestamp()} - {LOCATIONS.DISPATCHER}: Utworzono nowy samolot (PID: {pid})"
+            )
+            return pid
+
+    def check_finished_airplanes(self):
+        """Sprawdza czy któryś z procesów samolotów zakończył pracę"""
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+            if pid > 0 and pid in self.airplane_pids:
+                self.airplane_pids.remove(pid)
+                self.available_airplanes += 1
+                exit_code = os.WEXITSTATUS(status)
+                log(
+                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: Samolot (PID: {pid}) zakończył pracę"
+                    + f" {'poprawnie' if exit_code == 0 else 'z błędem'}"
+                )
+        except OSError:
+            pass
 
     def dispatcher_loop(self):
-        """Głowna pętla dyspozytora, sprawdza czy są pasażerowie do obsłużenia i czy są dostępne samoloty"""
+        """Główna pętla dyspozytora"""
         while self.running:
-            # Usuń zakończone loty (procesy samolotów)
-            self.active_processes = [p for p in self.active_processes if p.is_alive()]
+            # Sprawdź zakończone procesy samolotów
+            self.check_finished_airplanes()
+
             passengers = read_passengers(SECURITY_CHECKED_FILE)
             num_passengers = len(passengers)
 
-            # Jeśli jest wystarczająca liczba pasażerów i są dostępne samoloty, przygotuj samolot do odlotu
-            if num_passengers >= MIN_PASSENGERS_TO_BOARD and self.available_airplanes.value > 0:
-                with self.available_airplanes.get_lock():
-                    self.available_airplanes.value -= 1
-                # Limit bagażu dla samolotu
-                luggage_limit = randint(MIN_AIRPLANE_LUGGAGE_CAPACITY, MAX_AIRPLANE_LUGGAGE_CAPACITY)
-                log(
-                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.AIRPLANE_READY} (dostępnych: {self.available_airplanes.value})")
+            try:
+                signal = self.from_airplane_queue.get()
+                if signal == "boarding_complete":
+                    self.to_airplane_queue.put("takeoff_allowed")
+                    self.is_boarding = False
+            except Empty:
+                pass
 
-                # Tworzenie nowego procesu dla samolotu
-                airplane_process = Process(target=board_passengers,
-                                           args=(self.airplane_queue, AIRPLANE_CAPACITY, luggage_limit,
-                                                 self.available_airplanes))
-                airplane_process.start()
-                self.active_processes.append(airplane_process)
+            # Uruchom nowy samolot jeśli są spełnione warunki
+            if (
+                num_passengers >= MIN_PASSENGERS_TO_BOARD
+                and self.available_airplanes > 0
+                and not self.is_boarding
+            ):
+                self.is_boarding = True
+                self.available_airplanes -= 1
+                luggage_limit = randint(
+                    MIN_AIRPLANE_LUGGAGE_CAPACITY, MAX_AIRPLANE_LUGGAGE_CAPACITY
+                )
+                log(
+                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.AIRPLANE_READY} "
+                    f"(dostępnych: {self.available_airplanes})"
+                )
+
+                # Tworzenie nowego procesu samolotu
+                self.create_airplane_process(AIRPLANE_CAPACITY, luggage_limit)
 
                 # Przekaż informacje o gotowości samolotu do bramki
-                self.gate_queue.put(("airplane_ready", AIRPLANE_CAPACITY, luggage_limit))
-
-                signal = self.airplane_queue.get()
-                # Jeśli wszyscy pasażerowie weszli na pokład, pozwól na start samolotu
-                if signal == "boarding_complete":
-                    self.airplane_queue.put("takeoff_allowed")
+                self.to_gate_queue.put(
+                    ("airplane_ready", AIRPLANE_CAPACITY, luggage_limit)
+                )
             else:
                 time.sleep(1)
 
-            # Sprawdź czy lotnisko nie jest przepełnione, jeżeli tak, zamknij lotnisko
+            # Sprawdź przepełnienie lotniska
             if num_passengers >= MAX_PASSENGERS_FOR_SHUTDOWN:
-                log(
-                    f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.OVERPOPULATE}")
-                self.luggage_queue.put("close_airport")
-                self.gate_queue.put(("close_airport", None, None))
-
-
+                log(f"{timestamp()} - {LOCATIONS.DISPATCHER}: {MESSAGES.OVERPOPULATE}")
+                self.to_luggage_queue.put("close_airport")
+                self.to_gate_queue.put(("close_airport", None, None))
+                break
 
     def terminate_all_processes(self):
-        """Zatrzymuje wszystkie procesy samolotów i czysci kolejki"""
+        """Czyści stan dyspozytora bez kończenia procesów"""
         self.running = False
-        print("\nKończenie procesów samolotów...")
-
-        # Kończenie procesów samolotów
-        for process in self.active_processes:
-            if process.is_alive():
-                print(f"Kończenie procesu samolotu (PID: {process.pid})")
-                process.terminate()
-
-        # Czekanie na zakończenie procesów
-        for process in self.active_processes:
-            process.join(timeout=2)
-
-        # Czyszczenie kolejek
-        for queue in [self.gate_queue, self.airplane_queue, self.luggage_queue]:
-            queue.close()
-            queue.join_thread()
-
-        # Czyszcenie pamięci współdzielonej
+        for pid in list(self.airplane_pids):
+            terminate_process(pid, "airplane")
+        self.airplane_pids.clear()
         self.available_airplanes = None
-
-        print("Zakończone wszystkie procesy samolotów.")
-
-
-def main():
-    dispatcher = Dispatcher()
-
-    dispatcher_process = Process(target=dispatcher.dispatcher_loop)
-    gate_process = Process(target=process_passengers, args=(dispatcher.gate_queue,))
-
-    try:
-        dispatcher_process.start()
-        gate_process.start()
-
-        dispatcher_process.join()
-        gate_process.join()
-
-    except KeyboardInterrupt:
-        dispatcher.terminate_all_processes()
-
-        if dispatcher_process.is_alive():
-            dispatcher_process.terminate()
-
-        if gate_process.is_alive():
-            gate_process.terminate()
-
-        dispatcher_process.join()
-        gate_process.join()
-
-
-if __name__ == "__main__":
-    main()
+        print("Dispatcher zakończył pracę.")

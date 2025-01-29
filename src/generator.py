@@ -1,10 +1,9 @@
+import os
 import random
 import time
+import signal
 from dataclasses import dataclass, asdict
-from multiprocessing import Process
-
-from utils import ensure_files_exists
-from utils import timestamp, append_passenger, log
+from utils import timestamp, append_passenger, log, ensure_files_exists
 from consts import (
     ENTRANCE_FILE,
     PASSENGER_GENERATION_MIN_DELAY,
@@ -13,9 +12,12 @@ from consts import (
     VIP_PROBABILITY,
     MIN_LUGGAGE_WEIGHT,
     MAX_LUGGAGE_WEIGHT,
+    MAX_PASSENGER_PROCESSES,
     LOCATIONS,
-    MESSAGES
+    MESSAGES,
 )
+
+child_pids = set()
 
 
 @dataclass
@@ -28,51 +30,94 @@ class Passenger:
     controlPassed: int = 0
 
 
-current_id = 0
-
-
-def get_next_id() -> int:
-    """Pasażerowie maja globalne ID,w celu uniknięcia duplikatów"""
-    global current_id
-    current_id += 1
-    return current_id
-
-
-def generate_passenger() -> Passenger:
-    """Generuj pojedynczego pasażera"""
+def generate_passenger(pid) -> Passenger:
     return Passenger(
-        id=get_next_id(),
-        gender=random.choice(['M', 'F']),
+        id=pid,
+        gender=random.choice(["M", "F"]),
         luggageWeight=round(random.uniform(MIN_LUGGAGE_WEIGHT, MAX_LUGGAGE_WEIGHT), 2),
         hasDangerousItems=random.random() < DANGEROUS_ITEMS_PROBABILITY,
         isVIP=random.random() < VIP_PROBABILITY,
     )
 
 
-def generate_continuously():
-    """Główna pętla generatora, Sprawdz czy wymagane pliki istnieją i generuje pasażerów w nieskończoność"""
-    ensure_files_exists([ENTRANCE_FILE])
-    while True:
-        passenger = generate_passenger()
-        append_passenger(ENTRANCE_FILE, asdict(passenger))
-        log(f"{timestamp()} - {LOCATIONS.ENTRANCE}: "
-              f"{MESSAGES.NEW_PASSENGER}: ID={passenger.id}, "
-              f"Płeć={passenger.gender}, "
-              f"Bagaż={passenger.luggageWeight}kg, "
-              f"VIP={'Tak' if passenger.isVIP else 'Nie'}")
-
-        time.sleep(random.uniform(PASSENGER_GENERATION_MIN_DELAY,
-                                  PASSENGER_GENERATION_MAX_DELAY))
+def handle_passenger(passenger):
+    append_passenger(ENTRANCE_FILE, asdict(passenger))
+    log(
+        f"{timestamp()} - {LOCATIONS.ENTRANCE}: "
+        f"{MESSAGES.NEW_PASSENGER}: ID={passenger.id}, "
+        f"Płeć={passenger.gender}, "
+        f"Bagaż={passenger.luggageWeight}kg, "
+        f"VIP={'Tak' if passenger.isVIP else 'Nie'}"
+    )
 
 
-if __name__ == "__main__":
-    print("Uruchamianie generatora pasażerów...")
-    process = Process(target=generate_continuously)
-    process.start()
+def cleanup_children():
+    for pid in child_pids:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            continue
+    child_pids.clear()
 
+
+def parent_signal_handler(signum, frame):
+    """Handler dla procesu głównego"""
+    os.write(1, b"\nZatrzymywanie generatora pasazerow...\n")
+    cleanup_children()
+    os.write(1, b"Generator zatrzymany.\n")
+    os._exit(0)
+
+
+def child_signal_handler(signum, frame):
+    """Handler dla procesów potomnych"""
+    # os.write(1, f"Proces pasażera {os.getpid()} kończy działanie\n".encode())
+    os.kill(os.getpid(), signal.SIGKILL)  # Wymuszamy natychmiastowe zakończenie
+
+
+def cleanup_zombies():
     try:
-        process.join()
-    except KeyboardInterrupt:
-        print("\nZatrzymywanie generatora pasażerów...")
-        process.terminate()
-        print("Generator zatrzymany.")
+        while True:
+            wpid, status = os.waitpid(-1, os.WNOHANG)
+            if wpid == 0:
+                break
+            child_pids.discard(wpid)
+    except ChildProcessError:
+        pass
+
+
+def generate_continuously():
+    signal.signal(signal.SIGINT, parent_signal_handler)
+    signal.signal(signal.SIGTERM, parent_signal_handler)
+
+    ensure_files_exists([ENTRANCE_FILE])
+
+    while True:
+        if len(child_pids) < MAX_PASSENGER_PROCESSES:
+            pid = os.fork()
+            if pid == 0:
+                # Proces potomny
+                try:
+                    signal.signal(signal.SIGINT, child_signal_handler)
+                    signal.signal(signal.SIGTERM, child_signal_handler)
+
+                    passenger = generate_passenger(os.getpid())
+                    handle_passenger(passenger)
+
+                    # Czekamy na sygnał zakończenia
+                    signal.pause()
+
+                except Exception as e:
+                    print(f"Błąd w procesie potomnym: {e}")
+                    os._exit(1)
+            else:
+                # Proces główny
+                child_pids.add(pid)
+                # Czyścimy zakończone procesy potomne
+                cleanup_zombies()
+        else:
+            cleanup_zombies()
+        time.sleep(
+            random.uniform(
+                PASSENGER_GENERATION_MIN_DELAY, PASSENGER_GENERATION_MAX_DELAY
+            )
+        )

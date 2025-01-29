@@ -9,4 +9,14 @@ import securityControl
 import utils
 
 
-__all__ = ['airplane', 'consts', 'cleanup', 'generator', 'dispatcher', 'gate', 'luggageControl', 'securityControl', 'utils']
+__all__ = [
+    "airplane",
+    "consts",
+    "cleanup",
+    "generator",
+    "dispatcher",
+    "gate",
+    "luggageControl",
+    "securityControl",
+    "utils",
+]
